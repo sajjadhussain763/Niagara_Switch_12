@@ -117,75 +117,72 @@ document.addEventListener("DOMContentLoaded", () => {
         const BOT_IN = { x: -5, y: 2 };
         const BOT_OUT = { x: 5, y: 2 };
 
+        // Cloud bundle offsets
+        const cloudBundle = (i) => ({ x: (i - 4.5) * 8, y: 0 });
+
         // --- MODULE 1 ---
         
-        // Flow 1: Cybernet -> P9 (Solid) -> P1 (Dashed) -> DPI-1 (Dashed) -> P1 (Solid) -> P11 (Dashed) + Mirror P12 (Dashed)
+        // Flow 1: Cloud IN -> P9 -> P1 (dashed) -> DPI-1 -> P1 -> P11 (dashed) -> Cloud OUT
         const c1 = COLORS.flow1;
-        drawPath(getPoint('cybernet', 'bottom'), getPoint('m1-p9', 'top', TOP_IN), c1, 'solid', 'Cybernet → P9', 'down');
+        drawPath(getPoint('cloud-in', 'bottom', cloudBundle(1)), getPoint('m1-p9', 'top', TOP_IN), c1, 'solid', 'IN', 'down');
         drawPath(getPoint('m1-p9', 'top', TOP_OUT), getPoint('m1-p1', 'top', TOP_IN), c1, 'dashed', 'P9 → P1', 'inner-up');
-        drawPath(getPoint('m1-p1', 'bottom', BOT_OUT), getPoint('dpi-1', 'top', {x:-20, y:0}), c1, 'dashed', 'P1 → DPI-1', 'down');
+        drawPath(getPoint('m1-p1', 'bottom', BOT_OUT), getPoint('dpi-1', 'top', {x:-20, y:0}), c1, 'dashed', 'To DPI', 'down');
         drawPath(getPoint('dpi-1', 'top', {x:-10, y:0}), getPoint('m1-p1', 'bottom', BOT_IN), c1, 'solid', '', 'up');
         drawPath(getPoint('m1-p1', 'bottom', BOT_OUT), getPoint('m1-p11', 'top', TOP_IN), c1, 'dashed', 'P1 → P11', 'down');
-        drawPath(getPoint('m1-p12', 'bottom', BOT_OUT), getPoint('mirror-dpi-1', 'top', {x:-20, y:0}), c1, 'dashed', 'Mirror P12 → MIRROR DPI-1', 'down');
+        drawPath(getPoint('m1-p11', 'top', TOP_OUT), getPoint('cloud-out', 'bottom', cloudBundle(1)), c1, 'dashed', 'OUT', 'up');
+        drawPath(getPoint('m1-p12', 'bottom', BOT_OUT), getPoint('mirror-dpi-1', 'top', {x:-20, y:0}), c1, 'dashed', 'Mirror', 'down');
 
-        // Flow 2: P11 -> P3 (Dashed) -> P9 (Dashed) + Mirror P12 (Dashed)
+        // Flow 2: Cloud IN -> P11 -> P3 -> P9 -> Cloud OUT
         const c2 = COLORS.flow2;
+        drawPath(getPoint('cloud-in', 'bottom', cloudBundle(2)), getPoint('m1-p11', 'top', TOP_IN), c2, 'solid', 'IN', 'down');
         drawPath(getPoint('m1-p11', 'top', TOP_OUT), getPoint('m1-p3', 'top', TOP_IN), c2, 'dashed', 'P11 → P3', 'inner-up');
         drawPath(getPoint('m1-p3', 'bottom', BOT_OUT), getPoint('m1-p9', 'bottom', BOT_IN), c2, 'dashed', 'P3 → P9', 'inner-down');
-        drawPath(getPoint('m1-p12', 'bottom', {x:10, y:2}), getPoint('mirror-dpi-1', 'top', {x:10, y:0}), c2, 'dashed', 'Mirror P12 → MIRROR DPI-1', 'down');
+        drawPath(getPoint('m1-p9', 'top', TOP_OUT), getPoint('cloud-out', 'bottom', cloudBundle(2)), c2, 'dashed', 'OUT', 'up');
 
-        // Flow 3: P13 -> P5 (Dashed) -> DPI-2 (Dashed) -> P5 (Solid) -> P15 (Dashed) + Mirror P16 (Dashed)
+        // Flow 3: Cloud IN -> P13 -> P5 -> P15 -> Cloud OUT
         const c3 = COLORS.flow3;
-        drawPath(getPoint('m1-p13', 'top', TOP_IN), getPoint('m1-p5', 'top', TOP_IN), c3, 'dashed', 'P13 → P5', 'inner-up');
-        drawPath(getPoint('m1-p5', 'bottom', BOT_OUT), getPoint('dpi-2', 'top', {x:-20, y:0}), c3, 'dashed', 'P5 → DPI-2', 'down');
-        drawPath(getPoint('dpi-2', 'top', {x:-10, y:0}), getPoint('m1-p5', 'bottom', BOT_IN), c3, 'solid', '', 'up');
+        drawPath(getPoint('cloud-in', 'bottom', cloudBundle(3)), getPoint('m1-p13', 'top', TOP_IN), c3, 'solid', 'IN', 'down');
+        drawPath(getPoint('m1-p13', 'top', TOP_OUT), getPoint('m1-p5', 'top', TOP_IN), c3, 'dashed', 'P13 → P5', 'inner-up');
         drawPath(getPoint('m1-p5', 'bottom', BOT_OUT), getPoint('m1-p15', 'bottom', BOT_IN), c3, 'dashed', 'P5 → P15', 'inner-down');
-        drawPath(getPoint('m1-p16', 'bottom', BOT_OUT), getPoint('mirror-dpi-2', 'top', {x:-20, y:0}), c3, 'dashed', 'Mirror P16 → MIRROR DPI-2', 'down');
+        drawPath(getPoint('m1-p15', 'top', TOP_OUT), getPoint('cloud-out', 'bottom', cloudBundle(3)), c3, 'dashed', 'OUT', 'up');
 
-        // Flow 4: P15 -> P7 (Dashed) -> DPI-2 (Dashed) -> P7 (Solid) -> P13 (Dashed) + Mirror P14 (Dashed)
+        // Flow 4: Cloud IN -> P15 -> P7 -> P13 -> Cloud OUT
         const c4 = COLORS.flow4;
+        drawPath(getPoint('cloud-in', 'bottom', cloudBundle(4)), getPoint('m1-p15', 'top', TOP_IN), c4, 'solid', 'IN', 'down');
         drawPath(getPoint('m1-p15', 'top', TOP_OUT), getPoint('m1-p7', 'top', TOP_IN), c4, 'dashed', 'P15 → P7', 'inner-up');
-        drawPath(getPoint('m1-p7', 'bottom', BOT_OUT), getPoint('dpi-2', 'top', {x:10, y:0}), c4, 'dashed', 'P7 → DPI-2', 'down');
-        drawPath(getPoint('dpi-2', 'top', {x:20, y:0}), getPoint('m1-p7', 'bottom', BOT_IN), c4, 'solid', '', 'up');
         drawPath(getPoint('m1-p7', 'top', TOP_OUT), getPoint('m1-p13', 'top', TOP_OUT), c4, 'dashed', 'P7 → P13', 'inner-up');
-        drawPath(getPoint('m1-p14', 'bottom', BOT_OUT), getPoint('mirror-dpi-2', 'top', {x:10, y:0}), c4, 'dashed', 'Mirror P14 → MIRROR DPI-2', 'down');
+        drawPath(getPoint('m1-p13', 'top', TOP_IN), getPoint('cloud-out', 'bottom', cloudBundle(4)), c4, 'dashed', 'OUT', 'up');
 
 
         // --- MODULE 2 ---
         
-        // Flow 5: P9 -> P1 (Dashed) -> DPI-3 (Dashed) -> P1 (Solid) -> P11 (Dashed) + Mirror P10 (Dashed)
+        // Flow 5: Cloud IN -> P9 -> P1 -> P11 -> Cloud OUT
         const c5 = COLORS.flow5;
-        drawPath(getPoint('m2-p9', 'top', TOP_IN), getPoint('m2-p1', 'top', TOP_IN), c5, 'dashed', 'P9 → P1', 'inner-up');
-        drawPath(getPoint('m2-p1', 'bottom', BOT_OUT), getPoint('dpi-3', 'top', {x:-20, y:0}), c5, 'dashed', 'P1 → DPI-3', 'down');
-        drawPath(getPoint('dpi-3', 'top', {x:-10, y:0}), getPoint('m2-p1', 'bottom', BOT_IN), c5, 'solid', '', 'up');
+        drawPath(getPoint('cloud-in', 'bottom', cloudBundle(5)), getPoint('m2-p9', 'top', TOP_IN), c5, 'solid', 'IN', 'down');
+        drawPath(getPoint('m2-p9', 'top', TOP_OUT), getPoint('m2-p1', 'top', TOP_IN), c5, 'dashed', 'P9 → P1', 'inner-up');
         drawPath(getPoint('m2-p1', 'bottom', BOT_OUT), getPoint('m2-p11', 'bottom', BOT_IN), c5, 'dashed', 'P1 → P11', 'inner-down');
-        drawPath(getPoint('m2-p10', 'bottom', BOT_OUT), getPoint('mirror-dpi-3', 'top', {x:-20, y:0}), c5, 'dashed', 'Mirror P10 → MIRROR DPI-3', 'down');
+        drawPath(getPoint('m2-p11', 'top', TOP_OUT), getPoint('cloud-out', 'bottom', cloudBundle(5)), c5, 'dashed', 'OUT', 'up');
 
-        // Flow 6: Cybernet (Solid) -> P11 (Dashed) -> P3 (Dashed) -> DPI-3 (Dashed) -> P3 (Solid) -> P9 (Dashed) + Mirror P12 (Dashed)
+        // Flow 6: Cloud IN -> P11 -> P3 -> P9 -> Cloud OUT
         const c6 = COLORS.flow6;
-        drawPath(getPoint('cybernet', 'bottom', {x:50, y:0}), getPoint('m2-p11', 'top', TOP_IN), c6, 'solid', 'Cybernet → P11', 'down');
+        drawPath(getPoint('cloud-in', 'bottom', cloudBundle(6)), getPoint('m2-p11', 'top', TOP_IN), c6, 'solid', 'IN', 'down');
         drawPath(getPoint('m2-p11', 'top', TOP_OUT), getPoint('m2-p3', 'top', TOP_IN), c6, 'dashed', 'P11 → P3', 'inner-up');
-        drawPath(getPoint('m2-p3', 'bottom', BOT_OUT), getPoint('dpi-3', 'top', {x:10, y:0}), c6, 'dashed', 'P3 → DPI-3', 'down');
-        drawPath(getPoint('dpi-3', 'top', {x:20, y:0}), getPoint('m2-p3', 'bottom', BOT_IN), c6, 'solid', '', 'up');
         drawPath(getPoint('m2-p3', 'top', TOP_OUT), getPoint('m2-p9', 'top', TOP_OUT), c6, 'dashed', 'P3 → P9', 'inner-up');
-        drawPath(getPoint('m2-p12', 'bottom', BOT_OUT), getPoint('mirror-dpi-3', 'top', {x:10, y:0}), c6, 'dashed', 'Mirror P12 → MIRROR DPI-3', 'down');
+        drawPath(getPoint('m2-p9', 'top', TOP_IN), getPoint('cloud-out', 'bottom', cloudBundle(6)), c6, 'dashed', 'OUT', 'up');
 
-        // Flow 7: IT Cybernet (Solid) -> P13 (Dashed) -> P5 (Dashed) -> DPI-4 (Dashed) -> P5 (Solid) -> P15 (Dashed) + Mirror P14 (Dashed)
+        // Flow 7: Cloud IN -> P13 -> P5 -> P15 -> Cloud OUT
         const c7 = COLORS.flow7;
-        drawPath(getPoint('it-cybernet', 'bottom'), getPoint('m2-p13', 'top', TOP_IN), c7, 'solid', 'IT Cybernet → P13', 'down');
+        drawPath(getPoint('cloud-in', 'bottom', cloudBundle(7)), getPoint('m2-p13', 'top', TOP_IN), c7, 'solid', 'IN', 'down');
         drawPath(getPoint('m2-p13', 'top', TOP_OUT), getPoint('m2-p5', 'top', TOP_IN), c7, 'dashed', 'P13 → P5', 'inner-up');
-        drawPath(getPoint('m2-p5', 'bottom', BOT_OUT), getPoint('dpi-4', 'top', {x:-20, y:0}), c7, 'dashed', 'P5 → DPI-4', 'down');
-        drawPath(getPoint('dpi-4', 'top', {x:-10, y:0}), getPoint('m2-p5', 'bottom', BOT_IN), c7, 'solid', '', 'up');
         drawPath(getPoint('m2-p5', 'top', TOP_OUT), getPoint('m2-p15', 'top', TOP_OUT), c7, 'dashed', 'P5 → P15', 'inner-up');
-        drawPath(getPoint('m2-p14', 'bottom', BOT_OUT), getPoint('mirror-dpi-4', 'top', {x:-20, y:0}), c7, 'dashed', 'Mirror P14 → MIRROR DPI-4', 'down');
+        drawPath(getPoint('m2-p15', 'top', TOP_IN), getPoint('cloud-out', 'bottom', cloudBundle(7)), c7, 'dashed', 'OUT', 'up');
 
-        // Flow 8: P15 -> P7 (Dashed) -> DPI-4 (Dashed) -> P7 (Solid) -> P13 (Dashed) + Mirror P16 (Dashed)
+        // Flow 8: Cloud IN -> P15 -> P7 -> P13 -> Cloud OUT
         const c8 = COLORS.flow8;
-        drawPath(getPoint('m2-p15', 'top', TOP_IN), getPoint('m2-p7', 'top', TOP_IN), c8, 'dashed', 'P15 → P7', 'inner-up');
-        drawPath(getPoint('m2-p7', 'bottom', BOT_OUT), getPoint('dpi-4', 'top', {x:10, y:0}), c8, 'dashed', 'P7 → DPI-4', 'down');
-        drawPath(getPoint('dpi-4', 'top', {x:20, y:0}), getPoint('m2-p7', 'bottom', BOT_IN), c8, 'solid', '', 'up');
+        drawPath(getPoint('cloud-in', 'bottom', cloudBundle(8)), getPoint('m2-p15', 'top', TOP_IN), c8, 'solid', 'IN', 'down');
+        drawPath(getPoint('m2-p15', 'top', TOP_OUT), getPoint('m2-p7', 'top', TOP_IN), c8, 'dashed', 'P15 → P7', 'inner-up');
         drawPath(getPoint('m2-p7', 'top', TOP_OUT), getPoint('m2-p13', 'top', TOP_OUT), c8, 'dashed', 'P7 → P13', 'inner-up');
-        drawPath(getPoint('m2-p16', 'bottom', BOT_OUT), getPoint('mirror-dpi-4', 'top', {x:10, y:0}), c8, 'dashed', 'Mirror P16 → MIRROR DPI-4', 'down');
+        drawPath(getPoint('m2-p13', 'top', TOP_IN), getPoint('cloud-out', 'bottom', cloudBundle(8)), c8, 'dashed', 'OUT', 'up');
     }
 
     function capture(format) {
