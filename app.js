@@ -3,15 +3,15 @@ document.addEventListener("DOMContentLoaded", () => {
     const container = document.getElementById('diagram-container');
 
     // 8 Distinct Colors for 8 Flows
-    const colorMap = {
-        1: '#d6336c', // Pink
-        2: '#1a53ff', // Blue
-        3: '#e67700', // Orange
-        4: '#7b2ff7', // Purple
-        5: '#0ca678', // Green
-        6: '#c92a2a', // Red
-        7: '#b8860b', // Gold
-        8: '#0077b6'  // Cyan
+    const COLORS = {
+        flow1: '#d6336c', // Pink
+        flow2: '#1a53ff', // Blue
+        flow3: '#e67700', // Orange
+        flow4: '#7b2ff7', // Purple
+        flow5: '#0ca678', // Green
+        flow6: '#c92a2a', // Red
+        flow7: '#b8860b', // Gold
+        flow8: '#0077b6'  // Cyan
     };
 
     function resizeSVG() {
@@ -119,70 +119,73 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // --- MODULE 1 ---
         
-        // Flow 1: Cybernet -> P9 -> P1 (dashed) -> DPI-1 -> P1 -> P11 (dashed) + Mirror P12
-        const c1 = colorMap[1];
+        // Flow 1: Cybernet -> P9 -> P1 (dashed) -> DPI-1 -> P1 -> P11 (dashed) + Mirror P12 -> MIRROR DPI-1
+        const c1 = COLORS.flow1;
         drawPath(getPoint('cybernet', 'bottom'), getPoint('m1-p9', 'top', TOP_IN), c1, 'solid', 'Cybernet → P9', 'down');
         drawPath(getPoint('m1-p9', 'top', TOP_OUT), getPoint('m1-p1', 'top', TOP_IN), c1, 'dashed', 'P9 → P1 (Logical)', 'inner-up');
-        drawPath(getPoint('m1-p1', 'bottom', BOT_OUT), getPoint('dpi-server', 'top', {x:-40, y:0}), c1, 'solid', 'P1 → DPI-1', 'down');
-        drawPath(getPoint('dpi-server', 'top', {x:-30, y:0}), getPoint('m1-p1', 'bottom', BOT_IN), c1, 'solid', '', 'up');
+        drawPath(getPoint('m1-p1', 'bottom', BOT_OUT), getPoint('dpi-1', 'top', {x:-20, y:0}), c1, 'solid', 'P1 → DPI-1', 'down');
+        drawPath(getPoint('dpi-1', 'top', {x:-10, y:0}), getPoint('m1-p1', 'bottom', BOT_IN), c1, 'solid', '', 'up');
         drawPath(getPoint('m1-p1', 'bottom', BOT_OUT), getPoint('m1-p11', 'top', TOP_IN), c1, 'dashed', 'P1 → P11', 'down');
-        // Mirror P12 -> Mirror DPI-1
-        drawPath(getPoint('m1-p12', 'bottom', BOT_OUT), getPoint('mirror-dpi', 'top', {x:-40, y:0}), c1, 'solid', 'Mirror P12 → Mirror DPI-1', 'down');
+        drawPath(getPoint('m1-p12', 'bottom', BOT_OUT), getPoint('mirror-dpi-1', 'top', {x:-20, y:0}), c1, 'solid', 'Mirror P12 → MIRROR DPI-1', 'down');
 
-        // Flow 2: P11 -> P3 -> P9 (Color 2)
-        const c2 = colorMap[2];
+        // Flow 2: P11 -> P3 -> P9 + Mirror P12 -> MIRROR DPI-1
+        const c2 = COLORS.flow2;
         drawPath(getPoint('m1-p11', 'top', TOP_OUT), getPoint('m1-p3', 'top', TOP_IN), c2, 'solid', 'P11 → P3', 'inner-up');
         drawPath(getPoint('m1-p3', 'bottom', BOT_OUT), getPoint('m1-p9', 'bottom', BOT_IN), c2, 'solid', 'P3 → P9', 'inner-down');
-        drawPath(getPoint('m1-p12', 'bottom', {x:10, y:2}), getPoint('lea-server', 'top', {x:-40, y:0}), c2, 'solid', 'Clone P12', 'down');
+        drawPath(getPoint('m1-p12', 'bottom', {x:10, y:2}), getPoint('mirror-dpi-1', 'top', {x:10, y:0}), c2, 'solid', 'Mirror P12 → MIRROR DPI-1', 'down');
 
-        // Flow 3: P13 -> P5 -> P15 (Color 3)
-        const c3 = colorMap[3];
+        // Flow 3: P13 -> P5 -> P15 -> DPI-2 -> P5 -> P15 + Mirror P16 -> MIRROR DPI-2
+        const c3 = COLORS.flow3;
         drawPath(getPoint('m1-p13', 'top', TOP_IN), getPoint('m1-p5', 'top', TOP_IN), c3, 'solid', 'P13 → P5', 'inner-up');
+        drawPath(getPoint('m1-p5', 'bottom', BOT_OUT), getPoint('dpi-2', 'top', {x:-20, y:0}), c3, 'solid', 'P5 → DPI-2', 'down');
+        drawPath(getPoint('dpi-2', 'top', {x:-10, y:0}), getPoint('m1-p5', 'bottom', BOT_IN), c3, 'solid', '', 'up');
         drawPath(getPoint('m1-p5', 'bottom', BOT_OUT), getPoint('m1-p15', 'bottom', BOT_IN), c3, 'solid', 'P5 → P15', 'inner-down');
-        drawPath(getPoint('m1-p16', 'bottom', BOT_OUT), getPoint('lea-server', 'top', {x:-20, y:0}), c3, 'solid', 'Clone P16', 'down');
+        drawPath(getPoint('m1-p16', 'bottom', BOT_OUT), getPoint('mirror-dpi-2', 'top', {x:-20, y:0}), c3, 'solid', 'Mirror P16 → MIRROR DPI-2', 'down');
 
-        // Flow 4: P15 -> P7 -> DPA -> P7 -> P13 (Color 4)
-        const c4 = colorMap[4];
+        // Flow 4: P15 -> P7 -> DPI-2 -> P7 -> P13 + Mirror P14 -> MIRROR DPI-2
+        const c4 = COLORS.flow4;
         drawPath(getPoint('m1-p15', 'top', TOP_OUT), getPoint('m1-p7', 'top', TOP_IN), c4, 'solid', 'P15 → P7', 'inner-up');
-        drawPath(getPoint('m1-p7', 'bottom', BOT_OUT), getPoint('dpa-server', 'top', {x:-30, y:0}), c4, 'solid', 'P7 → DPA', 'down');
-        drawPath(getPoint('dpa-server', 'top', {x:-20, y:0}), getPoint('m1-p7', 'bottom', BOT_IN), c4, 'solid', '', 'up');
+        drawPath(getPoint('m1-p7', 'bottom', BOT_OUT), getPoint('dpi-2', 'top', {x:10, y:0}), c4, 'solid', 'P7 → DPI-2', 'down');
+        drawPath(getPoint('dpi-2', 'top', {x:20, y:0}), getPoint('m1-p7', 'bottom', BOT_IN), c4, 'solid', '', 'up');
         drawPath(getPoint('m1-p7', 'top', TOP_OUT), getPoint('m1-p13', 'top', TOP_OUT), c4, 'solid', 'P7 → P13', 'inner-up');
-        drawPath(getPoint('m1-p14', 'bottom', BOT_OUT), getPoint('lea-server', 'top', {x:0, y:0}), c4, 'solid', 'Mirror P14', 'down');
+        drawPath(getPoint('m1-p14', 'bottom', BOT_OUT), getPoint('mirror-dpi-2', 'top', {x:10, y:0}), c4, 'solid', 'Mirror P14 → MIRROR DPI-2', 'down');
 
 
         // --- MODULE 2 ---
         
-        // Flow 5: P9 -> P1 -> P11 (Color 5)
-        const c5 = colorMap[5];
+        // Flow 5: P9 -> P1 -> P11 -> DPI-3 -> P1 -> P11 + Mirror P10 -> MIRROR DPI-3
+        const c5 = COLORS.flow5;
         drawPath(getPoint('m2-p9', 'top', TOP_IN), getPoint('m2-p1', 'top', TOP_IN), c5, 'solid', 'P9 → P1', 'inner-up');
+        drawPath(getPoint('m2-p1', 'bottom', BOT_OUT), getPoint('dpi-3', 'top', {x:-20, y:0}), c5, 'solid', 'P1 → DPI-3', 'down');
+        drawPath(getPoint('dpi-3', 'top', {x:-10, y:0}), getPoint('m2-p1', 'bottom', BOT_IN), c5, 'solid', '', 'up');
         drawPath(getPoint('m2-p1', 'bottom', BOT_OUT), getPoint('m2-p11', 'bottom', BOT_IN), c5, 'solid', 'P1 → P11', 'inner-down');
-        drawPath(getPoint('m2-p10', 'bottom', BOT_OUT), getPoint('lea-server', 'top', {x:20, y:0}), c5, 'solid', 'Copy P10', 'down');
+        drawPath(getPoint('m2-p10', 'bottom', BOT_OUT), getPoint('mirror-dpi-3', 'top', {x:-20, y:0}), c5, 'solid', 'Mirror P10 → MIRROR DPI-3', 'down');
 
-        // Flow 6: Cybernet -> P11 -> P3 -> DPI -> P3 -> P9 (Color 6)
-        const c6 = colorMap[6];
+        // Flow 6: Cybernet -> P11 -> P3 -> DPI-3 -> P3 -> P9 + Mirror P12 -> MIRROR DPI-3
+        const c6 = COLORS.flow6;
         drawPath(getPoint('cybernet', 'bottom', {x:50, y:0}), getPoint('m2-p11', 'top', TOP_IN), c6, 'solid', 'Cybernet → P11', 'down');
         drawPath(getPoint('m2-p11', 'top', TOP_OUT), getPoint('m2-p3', 'top', TOP_IN), c6, 'solid', 'P11 → P3', 'inner-up');
-        drawPath(getPoint('m2-p3', 'bottom', BOT_OUT), getPoint('dpi-server', 'top', {x:10, y:0}), c6, 'solid', 'P3 → DPI', 'down');
-        drawPath(getPoint('dpi-server', 'top', {x:20, y:0}), getPoint('m2-p3', 'bottom', BOT_IN), c6, 'solid', '', 'up');
+        drawPath(getPoint('m2-p3', 'bottom', BOT_OUT), getPoint('dpi-3', 'top', {x:10, y:0}), c6, 'solid', 'P3 → DPI-3', 'down');
+        drawPath(getPoint('dpi-3', 'top', {x:20, y:0}), getPoint('m2-p3', 'bottom', BOT_IN), c6, 'solid', '', 'up');
         drawPath(getPoint('m2-p3', 'top', TOP_OUT), getPoint('m2-p9', 'top', TOP_OUT), c6, 'solid', 'P3 → P9', 'inner-up');
-        drawPath(getPoint('m2-p12', 'bottom', BOT_OUT), getPoint('lea-server', 'top', {x:40, y:0}), c6, 'solid', 'Clone P12', 'down');
+        drawPath(getPoint('m2-p12', 'bottom', BOT_OUT), getPoint('mirror-dpi-3', 'top', {x:10, y:0}), c6, 'solid', 'Mirror P12 → MIRROR DPI-3', 'down');
 
-        // Flow 7: IT Cybernet -> P13 -> P5 -> DPA -> P5 -> P15 (Color 7)
-        const c7 = colorMap[7];
+        // Flow 7: IT Cybernet -> P13 -> P5 -> DPI-4 -> P5 -> P15 + Mirror P14 -> MIRROR DPI-4
+        const c7 = COLORS.flow7;
         drawPath(getPoint('it-cybernet', 'bottom'), getPoint('m2-p13', 'top', TOP_IN), c7, 'solid', 'IT Cybernet → P13', 'down');
         drawPath(getPoint('m2-p13', 'top', TOP_OUT), getPoint('m2-p5', 'top', TOP_IN), c7, 'solid', 'P13 → P5', 'inner-up');
-        drawPath(getPoint('m2-p5', 'bottom', BOT_OUT), getPoint('dpa-server', 'top', {x:10, y:0}), c7, 'solid', 'P5 → DPA', 'down');
-        drawPath(getPoint('dpa-server', 'top', {x:20, y:0}), getPoint('m2-p5', 'bottom', BOT_IN), c7, 'solid', '', 'up');
+        drawPath(getPoint('m2-p5', 'bottom', BOT_OUT), getPoint('dpi-4', 'top', {x:-20, y:0}), c7, 'solid', 'P5 → DPI-4', 'down');
+        drawPath(getPoint('dpi-4', 'top', {x:-10, y:0}), getPoint('m2-p5', 'bottom', BOT_IN), c7, 'solid', '', 'up');
         drawPath(getPoint('m2-p5', 'top', TOP_OUT), getPoint('m2-p15', 'top', TOP_OUT), c7, 'solid', 'P5 → P15', 'inner-up');
-        drawPath(getPoint('m2-p14', 'bottom', BOT_OUT), getPoint('mirror-dpi', 'top', {x:10, y:0}), c7, 'solid', 'Clone P14', 'down');
+        drawPath(getPoint('m2-p14', 'bottom', BOT_OUT), getPoint('mirror-dpi-4', 'top', {x:-20, y:0}), c7, 'solid', 'Mirror P14 → MIRROR DPI-4', 'down');
 
-        // Flow 8: P15 -> P7 -> DPA -> P7 -> P13 (Color 8)
-        const c8 = colorMap[8];
+        // Flow 8: P15 -> P7 -> DPI-4 -> P7 -> P13 + Mirror P16 -> MIRROR DPI-4
+        const c8 = COLORS.flow8;
         drawPath(getPoint('m2-p15', 'top', TOP_IN), getPoint('m2-p7', 'top', TOP_IN), c8, 'solid', 'P15 → P7', 'inner-up');
-        drawPath(getPoint('m2-p7', 'bottom', BOT_OUT), getPoint('dpa-server', 'top', {x:40, y:0}), c8, 'solid', 'P7 → DPA', 'down');
-        drawPath(getPoint('dpa-server', 'top', {x:50, y:0}), getPoint('m2-p7', 'bottom', BOT_IN), c8, 'solid', '', 'up');
+        drawPath(getPoint('m2-p7', 'bottom', BOT_OUT), getPoint('dpi-4', 'top', {x:10, y:0}), c8, 'solid', 'P7 → DPI-4', 'down');
+        drawPath(getPoint('dpi-4', 'top', {x:20, y:0}), getPoint('m2-p7', 'bottom', BOT_IN), c8, 'solid', '', 'up');
         drawPath(getPoint('m2-p7', 'top', TOP_OUT), getPoint('m2-p13', 'top', TOP_OUT), c8, 'solid', 'P7 → P13', 'inner-up');
-        drawPath(getPoint('m2-p16', 'bottom', BOT_OUT), getPoint('lea-server', 'top', {x:60, y:0}), c8, 'solid', 'Mirror P16', 'down');
+        drawPath(getPoint('m2-p16', 'bottom', BOT_OUT), getPoint('mirror-dpi-4', 'top', {x:10, y:0}), c8, 'solid', 'Mirror P16 → MIRROR DPI-4', 'down');
     }
 
     function capture(format) {
