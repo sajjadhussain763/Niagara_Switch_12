@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Niagara Switch 12 - Technical Diagram</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div id="diagram-container">
+        <!-- Download Controls -->
+        <div class="btn-group">
+            <button id="download-png" class="download-btn" title="Save as PNG">PNG</button>
+            <button id="download-pdf" class="download-btn" title="Save as PDF">PDF</button>
+        </div>
+
+        <header class="diagram-header">
+            <h1 class="main-title">Niagara NPB - Dual Module Inline DPI/DPA with Mirror Flows to LEA</h1>
+            <p class="subtitle">Module 1: 4 Flows | Module 2: 4 Flows | Lines touch ports showing IN/OUT</p>
+        </header>
+
+        <svg id="connections-svg"></svg>
+
+        <!-- Network Sources -->
+        <div class="network-sources">
+            <div class="network-node cloud-icon" id="cybernet">Cybernet</div>
+            <div class="network-node cloud-icon" id="it-cybernet">IT Cybernet</div>
+        </div>
+
+        <div class="switch-rack">
+            <!-- Module 1 -->
+            <div class="module-box" id="module-1">
+                <div class="module-label">MODULE 1</div>
+                <div class="ports-container">
+                    <div class="port-row">
+                        <div class="port-box" id="m1-p1">P1</div>
+                        <div class="port-box" id="m1-p3">P3</div>
+                        <div class="port-box" id="m1-p5">P5</div>
+                        <div class="port-box" id="m1-p7">P7</div>
+                    </div>
+                    <div class="port-row">
+                        <div class="port-box" id="m1-p9">P9</div>
+                        <div class="port-box" id="m1-p11">P11</div>
+                        <div class="port-box" id="m1-p13">P13</div>
+                        <div class="port-box" id="m1-p15">P15</div>
+                    </div>
+                    <div class="port-row">
+                        <div class="port-box" id="m1-p10">P10</div>
+                        <div class="port-box" id="m1-p12">P12</div>
+                        <div class="port-box" id="m1-p14">P14</div>
+                        <div class="port-box" id="m1-p16">P16</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Module 2 -->
+            <div class="module-box" id="module-2">
+                <div class="module-label">MODULE 2</div>
+                <div class="ports-container">
+                    <div class="port-row">
+                        <div class="port-box" id="m2-p1">P1</div>
+                        <div class="port-box" id="m2-p3">P3</div>
+                        <div class="port-box" id="m2-p5">P5</div>
+                        <div class="port-box" id="m2-p7">P7</div>
+                    </div>
+                    <div class="port-row">
+                        <div class="port-box" id="m2-p9">P9</div>
+                        <div class="port-box" id="m2-p11">P11</div>
+                        <div class="port-box" id="m2-p13">P13</div>
+                        <div class="port-box" id="m2-p15">P15</div>
+                    </div>
+                    <div class="port-row">
+                        <div class="port-box" id="m2-p10">P10</div>
+                        <div class="port-box" id="m2-p12">P12</div>
+                        <div class="port-box" id="m2-p14">P14</div>
+                        <div class="port-box" id="m2-p16">P16</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Servers Layer -->
+        <div class="servers-container">
+            <div class="server-group">
+                <div class="server-box" id="dpi-server">
+                    <div class="server-icon"></div>
+                    <span>DPI Server</span>
+                </div>
+                <div class="server-box" id="dpa-server">
+                    <div class="server-icon"></div>
+                    <span>DPA Server</span>
+                </div>
+            </div>
+            <div class="server-group">
+                <div class="server-box mirror-server" id="mirror-dpi">
+                    <div class="server-icon"></div>
+                    <span>Mirror DPI</span>
+                </div>
+                <div class="server-box mirror-server" id="lea-server">
+                    <div class="server-icon"></div>
+                    <span>LEA Server</span>
+                </div>
+            </div>
+        </div>
+
+        <footer class="diagram-footer">
+            <div class="legend">
+                <div class="legend-item"><span class="line-sample solid blue"></span> Module 1 Primary</div>
+                <div class="legend-item"><span class="line-sample solid green"></span> Module 2 Primary</div>
+                <div class="legend-item"><span class="line-sample solid orange"></span> Mirror/Clone</div>
+                <div class="legend-item"><span class="line-sample dashed blue"></span> Flow 1 Downlink</div>
+            </div>
+        </footer>
+    </div>
+
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
