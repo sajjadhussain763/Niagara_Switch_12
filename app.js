@@ -124,94 +124,86 @@ document.addEventListener("DOMContentLoaded", () => {
         
         // Flow 1 (Pink)
         const f1 = COLORS.flow1;
-        drawPath(getPoint('cloud-in', 'bottom', C_OFF(1)), getPoint('m1-p9', 'top', P_IN), f1, 'solid', 'IN-1', 'external-down', 1);
-        drawPath(getPoint('m1-p9', 'top', P_OUT), getPoint('m1-p1', 'top', P_IN), f1, 'dashed', 'L1', 'logical-up', 1);
-        drawPath(getPoint('m1-p1', 'bottom', P_OUT), getPoint('dpi-1', 'top', S_OFF(1)), f1, 'dashed', 'UP-1', 'external-down', 1);
-        drawPath(getPoint('dpi-1', 'top', S_OFF(1.5)), getPoint('m1-p1', 'bottom', P_IN), f1, 'solid', 'DN-1', 'external-up', 1);
-        // Moved P1 -> P11 to bottom
-        drawPath(getPoint('m1-p1', 'bottom', P_OUT), getPoint('m1-p11', 'bottom', P_IN), f1, 'dashed', 'L1.1', 'logical-down', 1);
-        drawPath(getPoint('m1-p11', 'top', P_OUT), getPoint('cloud-out', 'bottom', C_OFF(1)), f1, 'dashed', 'OUT-1', 'external-up', 1);
-        drawPath(getPoint('m1-p10', 'bottom', P_OUT), getPoint('mirror-dpi-1', 'top', S_OFF(1)), f1, 'dashed', 'M1', 'external-down', 1);
+        drawPath(getPoint('cloud-in', 'bottom', C_OFF(1)), getPoint('m1-p9', 'top', P_IN), f1, 'solid', 'IN', 'external-down', 1);
+        drawPath(getPoint('m1-p9', 'top', P_OUT), getPoint('m1-p1', 'top', P_IN), f1, 'dashed', '', 'logical-up', 1);
+        drawPath(getPoint('m1-p1', 'bottom', P_OUT), getPoint('dpi-1', 'top', S_OFF(1)), f1, 'dashed', 'Uplink', 'external-down', 1);
+        drawPath(getPoint('dpi-1', 'top', S_OFF(1.5)), getPoint('m1-p1', 'bottom', P_IN), f1, 'solid', 'Downlink', 'external-up', 1);
+        drawPath(getPoint('m1-p1', 'bottom', P_OUT), getPoint('m1-p11', 'bottom', P_IN), f1, 'dashed', '', 'logical-down', 1);
+        drawPath(getPoint('m1-p11', 'top', P_OUT), getPoint('cloud-out', 'bottom', C_OFF(1)), f1, 'dashed', 'OUT', 'external-up', 1);
+        drawPath(getPoint('m1-p10', 'bottom', P_OUT), getPoint('mirror-dpi-1', 'top', S_OFF(1)), f1, 'dashed', 'Mirror', 'external-down', 1);
 
         // Flow 2 (Blue)
         const f2 = COLORS.flow2;
-        drawPath(getPoint('cloud-in', 'bottom', C_OFF(2)), getPoint('m1-p11', 'top', P_IN), f2, 'solid', 'IN-2', 'external-down', 2);
-        drawPath(getPoint('m1-p11', 'top', P_OUT), getPoint('m1-p3', 'top', P_IN), f2, 'dashed', 'L2', 'logical-up', 2);
-        drawPath(getPoint('m1-p3', 'bottom', P_OUT), getPoint('dpi-1', 'top', S_OFF(2)), f2, 'dashed', 'UP-2', 'external-down', 2);
-        drawPath(getPoint('dpi-1', 'top', S_OFF(2.5)), getPoint('m1-p3', 'bottom', P_IN), f2, 'solid', 'DN-2', 'external-up', 2);
-        // Already at bottom
-        drawPath(getPoint('m1-p3', 'bottom', P_OUT), getPoint('m1-p9', 'bottom', P_IN), f2, 'dashed', 'L2.1', 'logical-down', 2);
-        drawPath(getPoint('m1-p9', 'top', P_OUT), getPoint('cloud-out', 'bottom', C_OFF(2)), f2, 'dashed', 'OUT-2', 'external-up', 2);
-        drawPath(getPoint('m1-p12', 'bottom', P_OUT), getPoint('mirror-dpi-1', 'top', S_OFF(2)), f2, 'dashed', 'M2', 'external-down', 2);
+        drawPath(getPoint('cloud-in', 'bottom', C_OFF(2)), getPoint('m1-p11', 'top', P_IN), f2, 'solid', 'IN', 'external-down', 2);
+        drawPath(getPoint('m1-p11', 'top', P_OUT), getPoint('m1-p3', 'top', P_IN), f2, 'dashed', '', 'logical-up', 2);
+        drawPath(getPoint('m1-p3', 'bottom', P_OUT), getPoint('dpi-1', 'top', S_OFF(2)), f2, 'dashed', 'Uplink', 'external-down', 2);
+        drawPath(getPoint('dpi-1', 'top', S_OFF(2.5)), getPoint('m1-p3', 'bottom', P_IN), f2, 'solid', 'Downlink', 'external-up', 2);
+        drawPath(getPoint('m1-p3', 'bottom', P_OUT), getPoint('m1-p9', 'bottom', P_IN), f2, 'dashed', '', 'logical-down', 2);
+        drawPath(getPoint('m1-p9', 'top', P_OUT), getPoint('cloud-out', 'bottom', C_OFF(2)), f2, 'dashed', 'OUT', 'external-up', 2);
+        drawPath(getPoint('m1-p12', 'bottom', P_OUT), getPoint('mirror-dpi-1', 'top', S_OFF(2)), f2, 'dashed', 'Mirror', 'external-down', 2);
 
         // Flow 3 (Orange)
         const f3 = COLORS.flow3;
-        drawPath(getPoint('cloud-in', 'bottom', C_OFF(3)), getPoint('m1-p13', 'top', P_IN), f3, 'solid', 'IN-3', 'external-down', 3);
-        drawPath(getPoint('m1-p13', 'top', P_OUT), getPoint('m1-p5', 'top', P_IN), f3, 'dashed', 'L3', 'logical-up', 3);
-        drawPath(getPoint('m1-p5', 'bottom', P_OUT), getPoint('dpi-2', 'top', S_OFF(1)), f3, 'dashed', 'UP-3', 'external-down', 3);
-        drawPath(getPoint('dpi-2', 'top', S_OFF(1.5)), getPoint('m1-p5', 'bottom', P_IN), f3, 'solid', 'DN-3', 'external-up', 3);
-        // Already at bottom
-        drawPath(getPoint('m1-p5', 'bottom', P_OUT), getPoint('m1-p15', 'bottom', P_IN), f3, 'dashed', 'L3.1', 'logical-down', 3);
-        drawPath(getPoint('m1-p15', 'top', P_OUT), getPoint('cloud-out', 'bottom', C_OFF(3)), f3, 'dashed', 'OUT-3', 'external-up', 3);
-        drawPath(getPoint('m1-p16', 'bottom', P_OUT), getPoint('mirror-dpi-1', 'top', S_OFF(3)), f3, 'dashed', 'M3', 'external-down', 3);
+        drawPath(getPoint('cloud-in', 'bottom', C_OFF(3)), getPoint('m1-p13', 'top', P_IN), f3, 'solid', 'IN', 'external-down', 3);
+        drawPath(getPoint('m1-p13', 'top', P_OUT), getPoint('m1-p5', 'top', P_IN), f3, 'dashed', '', 'logical-up', 3);
+        drawPath(getPoint('m1-p5', 'bottom', P_OUT), getPoint('dpi-2', 'top', S_OFF(1)), f3, 'dashed', 'Uplink', 'external-down', 3);
+        drawPath(getPoint('dpi-2', 'top', S_OFF(1.5)), getPoint('m1-p5', 'bottom', P_IN), f3, 'solid', 'Downlink', 'external-up', 3);
+        drawPath(getPoint('m1-p5', 'bottom', P_OUT), getPoint('m1-p15', 'bottom', P_IN), f3, 'dashed', '', 'logical-down', 3);
+        drawPath(getPoint('m1-p15', 'top', P_OUT), getPoint('cloud-out', 'bottom', C_OFF(3)), f3, 'dashed', 'OUT', 'external-up', 3);
+        drawPath(getPoint('m1-p16', 'bottom', P_OUT), getPoint('mirror-dpi-1', 'top', S_OFF(3)), f3, 'dashed', 'Mirror', 'external-down', 3);
 
         // Flow 4 (Purple)
         const f4 = COLORS.flow4;
-        drawPath(getPoint('cloud-in', 'bottom', C_OFF(4)), getPoint('m1-p15', 'top', P_IN), f4, 'solid', 'IN-4', 'external-down', 4);
-        drawPath(getPoint('m1-p15', 'top', P_OUT), getPoint('m1-p7', 'top', P_IN), f4, 'dashed', 'L4', 'logical-up', 4);
-        drawPath(getPoint('m1-p7', 'bottom', P_OUT), getPoint('dpi-2', 'top', S_OFF(2)), f4, 'dashed', 'UP-4', 'external-down', 4);
-        drawPath(getPoint('dpi-2', 'top', S_OFF(2.5)), getPoint('m1-p7', 'bottom', P_IN), f4, 'solid', 'DN-4', 'external-up', 4);
-        // Moved P7 -> P13 to bottom
-        drawPath(getPoint('m1-p7', 'bottom', P_OUT), getPoint('m1-p13', 'bottom', P_IN), f4, 'dashed', 'L4.1', 'logical-down', 4);
-        drawPath(getPoint('m1-p13', 'top', P_IN), getPoint('cloud-out', 'bottom', C_OFF(4)), f4, 'dashed', 'OUT-4', 'external-up', 4);
-        drawPath(getPoint('m1-p14', 'bottom', P_OUT), getPoint('mirror-dpi-1', 'top', S_OFF(4)), f4, 'dashed', 'M4', 'external-down', 4);
+        drawPath(getPoint('cloud-in', 'bottom', C_OFF(4)), getPoint('m1-p15', 'top', P_IN), f4, 'solid', 'IN', 'external-down', 4);
+        drawPath(getPoint('m1-p15', 'top', P_OUT), getPoint('m1-p7', 'top', P_IN), f4, 'dashed', '', 'logical-up', 4);
+        drawPath(getPoint('m1-p7', 'bottom', P_OUT), getPoint('dpi-2', 'top', S_OFF(2)), f4, 'dashed', 'Uplink', 'external-down', 4);
+        drawPath(getPoint('dpi-2', 'top', S_OFF(2.5)), getPoint('m1-p7', 'bottom', P_IN), f4, 'solid', 'Downlink', 'external-up', 4);
+        drawPath(getPoint('m1-p7', 'bottom', P_OUT), getPoint('m1-p13', 'bottom', P_IN), f4, 'dashed', '', 'logical-down', 4);
+        drawPath(getPoint('m1-p13', 'top', P_IN), getPoint('cloud-out', 'bottom', C_OFF(4)), f4, 'dashed', 'OUT', 'external-up', 4);
+        drawPath(getPoint('m1-p14', 'bottom', P_OUT), getPoint('mirror-dpi-1', 'top', S_OFF(4)), f4, 'dashed', 'Mirror', 'external-down', 4);
 
 
         // --- MODULE 2 ---
         
         // Flow 5 (Green)
         const f5 = COLORS.flow5;
-        drawPath(getPoint('cloud-in', 'bottom', C_OFF(5)), getPoint('m2-p9', 'top', P_IN), f5, 'solid', 'IN-5', 'external-down', 5);
-        drawPath(getPoint('m2-p9', 'top', P_OUT), getPoint('m2-p1', 'top', P_IN), f5, 'dashed', 'L5', 'logical-up', 5);
-        drawPath(getPoint('m2-p1', 'bottom', P_OUT), getPoint('dpi-3', 'top', S_OFF(1)), f5, 'dashed', 'UP-5', 'external-down', 5);
-        drawPath(getPoint('dpi-3', 'top', S_OFF(1.5)), getPoint('m2-p1', 'bottom', P_IN), f5, 'solid', 'DN-5', 'external-up', 5);
-        // Already at bottom
-        drawPath(getPoint('m2-p1', 'bottom', P_OUT), getPoint('m2-p11', 'bottom', P_IN), f5, 'dashed', 'L5.1', 'logical-down', 5);
-        drawPath(getPoint('m2-p11', 'top', P_OUT), getPoint('cloud-out', 'bottom', C_OFF(5)), f5, 'dashed', 'OUT-5', 'external-up', 5);
-        drawPath(getPoint('m2-p10', 'bottom', P_OUT), getPoint('mirror-dpi-3', 'top', S_OFF(1)), f5, 'dashed', 'M5', 'external-down', 5);
+        drawPath(getPoint('cloud-in', 'bottom', C_OFF(5)), getPoint('m2-p9', 'top', P_IN), f5, 'solid', 'IN', 'external-down', 5);
+        drawPath(getPoint('m2-p9', 'top', P_OUT), getPoint('m2-p1', 'top', P_IN), f5, 'dashed', '', 'logical-up', 5);
+        drawPath(getPoint('m2-p1', 'bottom', P_OUT), getPoint('dpi-3', 'top', S_OFF(1)), f5, 'dashed', 'Uplink', 'external-down', 5);
+        drawPath(getPoint('dpi-3', 'top', S_OFF(1.5)), getPoint('m2-p1', 'bottom', P_IN), f5, 'solid', 'Downlink', 'external-up', 5);
+        drawPath(getPoint('m2-p1', 'bottom', P_OUT), getPoint('m2-p11', 'bottom', P_IN), f5, 'dashed', '', 'logical-down', 5);
+        drawPath(getPoint('m2-p11', 'top', P_OUT), getPoint('cloud-out', 'bottom', C_OFF(5)), f5, 'dashed', 'OUT', 'external-up', 5);
+        drawPath(getPoint('m2-p10', 'bottom', P_OUT), getPoint('mirror-dpi-3', 'top', S_OFF(1)), f5, 'dashed', 'Mirror', 'external-down', 5);
 
         // Flow 6 (Red)
         const f6 = COLORS.flow6;
-        drawPath(getPoint('cloud-in', 'bottom', C_OFF(6)), getPoint('m2-p11', 'top', P_IN), f6, 'solid', 'IN-6', 'external-down', 6);
-        drawPath(getPoint('m2-p11', 'top', P_OUT), getPoint('m2-p3', 'top', P_IN), f6, 'dashed', 'L6', 'logical-up', 6);
-        drawPath(getPoint('m2-p3', 'bottom', P_OUT), getPoint('dpi-3', 'top', S_OFF(2)), f6, 'dashed', 'UP-6', 'external-down', 6);
-        drawPath(getPoint('dpi-3', 'top', S_OFF(2.5)), getPoint('m2-p3', 'bottom', P_IN), f6, 'solid', 'DN-6', 'external-up', 6);
-        // Moved P3 -> P9 to bottom
-        drawPath(getPoint('m2-p3', 'bottom', P_OUT), getPoint('m2-p9', 'bottom', P_IN), f6, 'dashed', 'L6.1', 'logical-down', 6);
-        drawPath(getPoint('m2-p9', 'top', P_IN), getPoint('cloud-out', 'bottom', C_OFF(6)), f6, 'dashed', 'OUT-6', 'external-up', 6);
-        drawPath(getPoint('m2-p12', 'bottom', P_OUT), getPoint('mirror-dpi-3', 'top', S_OFF(2)), f6, 'dashed', 'M6', 'external-down', 6);
+        drawPath(getPoint('cloud-in', 'bottom', C_OFF(6)), getPoint('m2-p11', 'top', P_IN), f6, 'solid', 'IN', 'external-down', 6);
+        drawPath(getPoint('m2-p11', 'top', P_OUT), getPoint('m2-p3', 'top', P_IN), f6, 'dashed', '', 'logical-up', 6);
+        drawPath(getPoint('m2-p3', 'bottom', P_OUT), getPoint('dpi-3', 'top', S_OFF(2)), f6, 'dashed', 'Uplink', 'external-down', 6);
+        drawPath(getPoint('dpi-3', 'top', S_OFF(2.5)), getPoint('m2-p3', 'bottom', P_IN), f6, 'solid', 'Downlink', 'external-up', 6);
+        drawPath(getPoint('m2-p3', 'bottom', P_OUT), getPoint('m2-p9', 'bottom', P_IN), f6, 'dashed', '', 'logical-down', 6);
+        drawPath(getPoint('m2-p9', 'top', P_IN), getPoint('cloud-out', 'bottom', C_OFF(6)), f6, 'dashed', 'OUT', 'external-up', 6);
+        drawPath(getPoint('m2-p12', 'bottom', P_OUT), getPoint('mirror-dpi-3', 'top', S_OFF(2)), f6, 'dashed', 'Mirror', 'external-down', 6);
 
         // Flow 7 (Gold)
         const f7 = COLORS.flow7;
-        drawPath(getPoint('cloud-in', 'bottom', C_OFF(7)), getPoint('m2-p13', 'top', P_IN), f7, 'solid', 'IN-7', 'external-down', 7);
-        drawPath(getPoint('m2-p13', 'top', P_OUT), getPoint('m2-p5', 'top', P_IN), f7, 'dashed', 'L7', 'logical-up', 7);
-        drawPath(getPoint('m2-p5', 'bottom', P_OUT), getPoint('dpi-4', 'top', S_OFF(1)), f7, 'dashed', 'UP-7', 'external-down', 7);
-        drawPath(getPoint('dpi-4', 'top', S_OFF(1.5)), getPoint('m2-p5', 'bottom', P_IN), f7, 'solid', 'DN-7', 'external-up', 7);
-        // Moved P5 -> P15 to bottom
-        drawPath(getPoint('m2-p5', 'bottom', P_OUT), getPoint('m2-p15', 'bottom', P_IN), f7, 'dashed', 'L7.1', 'logical-down', 7);
-        drawPath(getPoint('m2-p15', 'top', P_IN), getPoint('cloud-out', 'bottom', C_OFF(7)), f7, 'dashed', 'OUT-7', 'external-up', 7);
-        drawPath(getPoint('m2-p14', 'bottom', P_OUT), getPoint('mirror-dpi-4', 'top', S_OFF(1)), f7, 'dashed', 'M7', 'external-down', 7);
+        drawPath(getPoint('cloud-in', 'bottom', C_OFF(7)), getPoint('m2-p13', 'top', P_IN), f7, 'solid', 'IN', 'external-down', 7);
+        drawPath(getPoint('m2-p13', 'top', P_OUT), getPoint('m2-p5', 'top', P_IN), f7, 'dashed', '', 'logical-up', 7);
+        drawPath(getPoint('m2-p5', 'bottom', P_OUT), getPoint('dpi-4', 'top', S_OFF(1)), f7, 'dashed', 'Uplink', 'external-down', 7);
+        drawPath(getPoint('dpi-4', 'top', S_OFF(1.5)), getPoint('m2-p5', 'bottom', P_IN), f7, 'solid', 'Downlink', 'external-up', 7);
+        drawPath(getPoint('m2-p5', 'bottom', P_OUT), getPoint('m2-p15', 'bottom', P_IN), f7, 'dashed', '', 'logical-down', 7);
+        drawPath(getPoint('m2-p15', 'top', P_IN), getPoint('cloud-out', 'bottom', C_OFF(7)), f7, 'dashed', 'OUT', 'external-up', 7);
+        drawPath(getPoint('m2-p14', 'bottom', P_OUT), getPoint('mirror-dpi-4', 'top', S_OFF(1)), f7, 'dashed', 'Mirror', 'external-down', 7);
 
         // Flow 8 (Cyan)
         const f8 = COLORS.flow8;
-        drawPath(getPoint('cloud-in', 'bottom', C_OFF(8)), getPoint('m2-p15', 'top', P_IN), f8, 'solid', 'IN-8', 'external-down', 8);
-        drawPath(getPoint('m2-p15', 'top', P_OUT), getPoint('m2-p7', 'top', P_IN), f8, 'dashed', 'L8', 'logical-up', 8);
-        drawPath(getPoint('m2-p7', 'bottom', P_OUT), getPoint('dpi-4', 'top', S_OFF(2)), f8, 'dashed', 'UP-8', 'external-down', 8);
-        drawPath(getPoint('dpi-4', 'top', S_OFF(2.5)), getPoint('m2-p7', 'bottom', P_IN), f8, 'solid', 'DN-8', 'external-up', 8);
-        // Moved P7 -> P13 to bottom
-        drawPath(getPoint('m2-p7', 'bottom', P_OUT), getPoint('m2-p13', 'bottom', P_IN), f8, 'dashed', 'L8.1', 'logical-down', 8);
-        drawPath(getPoint('m2-p13', 'top', P_IN), getPoint('cloud-out', 'bottom', C_OFF(8)), f8, 'dashed', 'OUT-8', 'external-up', 8);
-        drawPath(getPoint('m2-p16', 'bottom', P_OUT), getPoint('mirror-dpi-4', 'top', S_OFF(2)), f8, 'dashed', 'M8', 'external-down', 8);
+        drawPath(getPoint('cloud-in', 'bottom', C_OFF(8)), getPoint('m2-p15', 'top', P_IN), f8, 'solid', 'IN', 'external-down', 8);
+        drawPath(getPoint('m2-p15', 'top', P_OUT), getPoint('m2-p7', 'top', P_IN), f8, 'dashed', '', 'logical-up', 8);
+        drawPath(getPoint('m2-p7', 'bottom', P_OUT), getPoint('dpi-4', 'top', S_OFF(2)), f8, 'dashed', 'Uplink', 'external-down', 8);
+        drawPath(getPoint('dpi-4', 'top', S_OFF(2.5)), getPoint('m2-p7', 'bottom', P_IN), f8, 'solid', 'Downlink', 'external-up', 8);
+        drawPath(getPoint('m2-p7', 'bottom', P_OUT), getPoint('m2-p13', 'bottom', P_IN), f8, 'dashed', '', 'logical-down', 8);
+        drawPath(getPoint('m2-p13', 'top', P_IN), getPoint('cloud-out', 'bottom', C_OFF(8)), f8, 'dashed', 'OUT', 'external-up', 8);
+        drawPath(getPoint('m2-p16', 'bottom', P_OUT), getPoint('mirror-dpi-4', 'top', S_OFF(2)), f8, 'dashed', 'Mirror', 'external-down', 8);
     }
 
     function capture(format) {
