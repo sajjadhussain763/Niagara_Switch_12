@@ -44,7 +44,7 @@ document.addEventListener("DOMContentLoaded", () => {
         return { x: x + offset.x, y: y + offset.y };
     }
 
-    function drawPath(p1, p2, color, style = 'solid', label = '', curveDir = 'down') {
+    function drawPath(p1, p2, color, style = 'solid', label = '', type = 'external', flowIndex = 0) {
         const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
         const markerId = `arrow-${color.replace('#', '')}`;
         
@@ -65,45 +65,55 @@ document.addEventListener("DOMContentLoaded", () => {
             defs.appendChild(marker);
         }
 
-        const dx = Math.abs(p2.x - p1.x);
-        const dy = Math.abs(p2.y - p1.y);
         let cp1x = p1.x, cp1y = p1.y;
         let cp2x = p2.x, cp2y = p2.y;
 
-        if (curveDir === 'down') {
-            cp1y += Math.max(dy * 0.4, 40);
-            cp2y -= Math.max(dy * 0.4, 40);
-        } else if (curveDir === 'up') {
-            cp1y -= Math.max(dy * 0.4, 40);
-            cp2y += Math.max(dy * 0.4, 40);
-        } else if (curveDir === 'inner-up') {
-            cp1y -= 50;
-            cp2y -= 50;
-        } else if (curveDir === 'inner-down') {
-            cp1y += 50;
-            cp2y += 50;
+        const distY = Math.abs(p2.y - p1.y);
+        const distX = Math.abs(p2.x - p1.x);
+
+        if (type === 'logical-up') {
+            // Tight arc above ports
+            cp1y -= 25 + (flowIndex * 5);
+            cp2y -= 25 + (flowIndex * 5);
+        } else if (type === 'logical-down') {
+            // Tight arc below ports
+            cp1y += 25 + (flowIndex * 5);
+            cp2y += 25 + (flowIndex * 5);
+        } else if (type === 'external-down') {
+            // Flowing down to servers
+            cp1y += Math.max(distY * 0.4, 60) + (flowIndex * 3);
+            cp2y -= Math.max(distY * 0.4, 60) + (flowIndex * 3);
+        } else if (type === 'external-up') {
+            // Flowing up from servers or to clouds
+            cp1y -= Math.max(distY * 0.4, 60) + (flowIndex * 3);
+            cp2y += Math.max(distY * 0.4, 60) + (flowIndex * 3);
         }
 
         path.setAttribute('d', `M ${p1.x} ${p1.y} C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${p2.x} ${p2.y}`);
         path.setAttribute('stroke', color);
-        path.setAttribute('stroke-width', '2.5');
+        path.setAttribute('stroke-width', '2');
         path.setAttribute('fill', 'none');
         path.setAttribute('marker-end', `url(#${markerId})`);
+        path.style.transition = 'all 0.3s ease';
 
         if (style === 'dashed') {
-            path.setAttribute('stroke-dasharray', '8,5');
+            path.setAttribute('stroke-dasharray', '6,4');
         }
 
         svg.appendChild(path);
 
         if (label) {
             const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-            text.setAttribute('x', p1.x + (p2.x - p1.x) * 0.3);
-            text.setAttribute('y', p1.y + (p2.y - p1.y) * 0.3 - 5);
+            // Place text slightly offset from the midpoint for clarity
+            const textX = p1.x + (p2.x - p1.x) * 0.25;
+            const textY = p1.y + (p2.y - p1.y) * 0.25 - 8;
+            text.setAttribute('x', textX);
+            text.setAttribute('y', textY);
             text.setAttribute('fill', color);
-            text.setAttribute('font-size', '10px');
-            text.setAttribute('font-weight', 'bold');
+            text.setAttribute('font-size', '9px');
+            text.setAttribute('font-weight', '700');
             text.setAttribute('text-anchor', 'middle');
+            text.style.textShadow = '0 0 2px white';
             text.textContent = label;
             svg.appendChild(text);
         }
@@ -112,98 +122,100 @@ document.addEventListener("DOMContentLoaded", () => {
     function drawAllFlows() {
         svg.innerHTML = '<defs></defs>';
         
-        const TOP_IN = { x: -5, y: -2 };
-        const TOP_OUT = { x: 5, y: -2 };
-        const BOT_IN = { x: -5, y: 2 };
-        const BOT_OUT = { x: 5, y: 2 };
-
+        // Port relative offsets to prevent overlapping markers
+        const P_IN = { x: -6, y: 0 };
+        const P_OUT = { x: 6, y: 0 };
+        
+        // Server side offsets
+        const S_OFF = (idx) => ({ x: (idx - 2.5) * 12, y: 0 });
+        
         // Cloud bundle offsets
-        const cloudBundle = (i) => ({ x: (i - 4.5) * 8, y: 0 });
+        const C_OFF = (idx) => ({ x: (idx - 4.5) * 10, y: 0 });
 
         // --- MODULE 1 ---
         
-        // Flow 1: Cybernet IN -> P9 -> P1 -> DPI-1 -> P1 -> P11 + Mirror P10 -> MIRROR DPI-1
-        const c1 = COLORS.flow1;
-        drawPath(getPoint('cloud-in', 'bottom', cloudBundle(1)), getPoint('m1-p9', 'top', TOP_IN), c1, 'solid', 'IN', 'down');
-        drawPath(getPoint('m1-p9', 'top', TOP_OUT), getPoint('m1-p1', 'top', TOP_IN), c1, 'dashed', 'Logical', 'inner-up');
-        drawPath(getPoint('m1-p1', 'bottom', BOT_OUT), getPoint('dpi-1', 'top', {x:-20, y:0}), c1, 'dashed', 'Uplink', 'down');
-        drawPath(getPoint('dpi-1', 'top', {x:-10, y:0}), getPoint('m1-p1', 'bottom', BOT_IN), c1, 'solid', 'Downlink', 'up');
-        drawPath(getPoint('m1-p1', 'bottom', BOT_OUT), getPoint('m1-p11', 'top', TOP_IN), c1, 'dashed', 'Output P11', 'down');
-        drawPath(getPoint('m1-p11', 'top', TOP_OUT), getPoint('cloud-out', 'bottom', cloudBundle(1)), c1, 'dashed', 'OUT', 'up');
-        drawPath(getPoint('m1-p10', 'bottom', BOT_OUT), getPoint('mirror-dpi-1', 'top', {x:-20, y:0}), c1, 'dashed', 'Mirror P10', 'down');
+        // Flow 1 (Pink): P9 -> P1 -> DPI-1 -> P11 (Mirror P10)
+        const f1 = COLORS.flow1;
+        drawPath(getPoint('cloud-in', 'bottom', C_OFF(1)), getPoint('m1-p9', 'top', P_IN), f1, 'solid', 'IN-1', 'external-down', 1);
+        drawPath(getPoint('m1-p9', 'top', P_OUT), getPoint('m1-p1', 'top', P_IN), f1, 'dashed', 'L1', 'logical-up', 1);
+        drawPath(getPoint('m1-p1', 'bottom', P_OUT), getPoint('dpi-1', 'top', S_OFF(1)), f1, 'dashed', 'UP-1', 'external-down', 1);
+        drawPath(getPoint('dpi-1', 'top', S_OFF(1.5)), getPoint('m1-p1', 'bottom', P_IN), f1, 'solid', 'DN-1', 'external-up', 1);
+        drawPath(getPoint('m1-p1', 'bottom', P_OUT), getPoint('m1-p11', 'top', P_IN), f1, 'dashed', 'L1.1', 'external-down', 1);
+        drawPath(getPoint('m1-p11', 'top', P_OUT), getPoint('cloud-out', 'bottom', C_OFF(1)), f1, 'dashed', 'OUT-1', 'external-up', 1);
+        drawPath(getPoint('m1-p10', 'bottom', P_OUT), getPoint('mirror-dpi-1', 'top', S_OFF(1)), f1, 'dashed', 'M1', 'external-down', 1);
 
-        // Flow 2: Cybernet IN -> P11 -> P3 -> DPI-1 -> P3 -> P9 + Mirror P12 -> MIRROR DPI-1
-        const c2 = COLORS.flow2;
-        drawPath(getPoint('cloud-in', 'bottom', cloudBundle(2)), getPoint('m1-p11', 'top', TOP_IN), c2, 'solid', 'IN', 'down');
-        drawPath(getPoint('m1-p11', 'top', TOP_OUT), getPoint('m1-p3', 'top', TOP_IN), c2, 'dashed', 'Logical', 'inner-up');
-        drawPath(getPoint('m1-p3', 'bottom', BOT_OUT), getPoint('dpi-1', 'top', {x:10, y:0}), c2, 'dashed', 'Uplink', 'down');
-        drawPath(getPoint('dpi-1', 'top', {x:20, y:0}), getPoint('m1-p3', 'bottom', BOT_IN), c2, 'solid', 'Downlink', 'up');
-        drawPath(getPoint('m1-p3', 'bottom', BOT_OUT), getPoint('m1-p9', 'bottom', BOT_IN), c2, 'dashed', 'Output P9', 'inner-down');
-        drawPath(getPoint('m1-p9', 'top', TOP_OUT), getPoint('cloud-out', 'bottom', cloudBundle(2)), c2, 'dashed', 'OUT', 'up');
-        drawPath(getPoint('m1-p12', 'bottom', BOT_OUT), getPoint('mirror-dpi-1', 'top', {x:-10, y:0}), c2, 'dashed', 'Mirror P12', 'down');
+        // Flow 2 (Blue): P11 -> P3 -> DPI-1 -> P9 (Mirror P12)
+        const f2 = COLORS.flow2;
+        drawPath(getPoint('cloud-in', 'bottom', C_OFF(2)), getPoint('m1-p11', 'top', P_IN), f2, 'solid', 'IN-2', 'external-down', 2);
+        drawPath(getPoint('m1-p11', 'top', P_OUT), getPoint('m1-p3', 'top', P_IN), f2, 'dashed', 'L2', 'logical-up', 2);
+        drawPath(getPoint('m1-p3', 'bottom', P_OUT), getPoint('dpi-1', 'top', S_OFF(2)), f2, 'dashed', 'UP-2', 'external-down', 2);
+        drawPath(getPoint('dpi-1', 'top', S_OFF(2.5)), getPoint('m1-p3', 'bottom', P_IN), f2, 'solid', 'DN-2', 'external-up', 2);
+        drawPath(getPoint('m1-p3', 'bottom', P_OUT), getPoint('m1-p9', 'bottom', P_IN), f2, 'dashed', 'L2.1', 'logical-down', 2);
+        drawPath(getPoint('m1-p9', 'top', P_OUT), getPoint('cloud-out', 'bottom', C_OFF(2)), f2, 'dashed', 'OUT-2', 'external-up', 2);
+        drawPath(getPoint('m1-p12', 'bottom', P_OUT), getPoint('mirror-dpi-1', 'top', S_OFF(2)), f2, 'dashed', 'M2', 'external-down', 2);
 
-        // Flow 3: Cybernet IN -> P13 -> P5 -> DPI-2 -> P5 -> P15 + Mirror P16 -> MIRROR DPI-1
-        const c3 = COLORS.flow3;
-        drawPath(getPoint('cloud-in', 'bottom', cloudBundle(3)), getPoint('m1-p13', 'top', TOP_IN), c3, 'solid', 'IN', 'down');
-        drawPath(getPoint('m1-p13', 'top', TOP_OUT), getPoint('m1-p5', 'top', TOP_IN), c3, 'dashed', 'Logical', 'inner-up');
-        drawPath(getPoint('m1-p5', 'bottom', BOT_OUT), getPoint('dpi-2', 'top', {x:-20, y:0}), c3, 'dashed', 'Uplink', 'down');
-        drawPath(getPoint('dpi-2', 'top', {x:-10, y:0}), getPoint('m1-p5', 'bottom', BOT_IN), c3, 'solid', 'Downlink', 'up');
-        drawPath(getPoint('m1-p5', 'bottom', BOT_OUT), getPoint('m1-p15', 'bottom', BOT_IN), c3, 'dashed', 'Output P15', 'inner-down');
-        drawPath(getPoint('m1-p15', 'top', TOP_OUT), getPoint('cloud-out', 'bottom', cloudBundle(3)), c3, 'dashed', 'OUT', 'up');
-        drawPath(getPoint('m1-p16', 'bottom', BOT_OUT), getPoint('mirror-dpi-1', 'top', {x:10, y:0}), c3, 'dashed', 'Mirror P16', 'down');
+        // Flow 3 (Orange): P13 -> P5 -> DPI-2 -> P15 (Mirror P16)
+        const f3 = COLORS.flow3;
+        drawPath(getPoint('cloud-in', 'bottom', C_OFF(3)), getPoint('m1-p13', 'top', P_IN), f3, 'solid', 'IN-3', 'external-down', 3);
+        drawPath(getPoint('m1-p13', 'top', P_OUT), getPoint('m1-p5', 'top', P_IN), f3, 'dashed', 'L3', 'logical-up', 3);
+        drawPath(getPoint('m1-p5', 'bottom', P_OUT), getPoint('dpi-2', 'top', S_OFF(1)), f3, 'dashed', 'UP-3', 'external-down', 3);
+        drawPath(getPoint('dpi-2', 'top', S_OFF(1.5)), getPoint('m1-p5', 'bottom', P_IN), f3, 'solid', 'DN-3', 'external-up', 3);
+        drawPath(getPoint('m1-p5', 'bottom', P_OUT), getPoint('m1-p15', 'bottom', P_IN), f3, 'dashed', 'L3.1', 'logical-down', 3);
+        drawPath(getPoint('m1-p15', 'top', P_OUT), getPoint('cloud-out', 'bottom', C_OFF(3)), f3, 'dashed', 'OUT-3', 'external-up', 3);
+        drawPath(getPoint('m1-p16', 'bottom', P_OUT), getPoint('mirror-dpi-1', 'top', S_OFF(3)), f3, 'dashed', 'M3', 'external-down', 3);
 
-        // Flow 4: Cybernet IN -> P15 -> P7 -> DPI-2 -> P7 -> P13 + Mirror P14 -> MIRROR DPI-1
-        const c4 = COLORS.flow4;
-        drawPath(getPoint('cloud-in', 'bottom', cloudBundle(4)), getPoint('m1-p15', 'top', TOP_IN), c4, 'solid', 'IN', 'down');
-        drawPath(getPoint('m1-p15', 'top', TOP_OUT), getPoint('m1-p7', 'top', TOP_IN), c4, 'dashed', 'Logical', 'inner-up');
-        drawPath(getPoint('m1-p7', 'bottom', BOT_OUT), getPoint('dpi-2', 'top', {x:10, y:0}), c4, 'dashed', 'Uplink', 'down');
-        drawPath(getPoint('dpi-2', 'top', {x:20, y:0}), getPoint('m1-p7', 'bottom', BOT_IN), c4, 'solid', 'Downlink', 'up');
-        drawPath(getPoint('m1-p7', 'top', TOP_OUT), getPoint('m1-p13', 'top', TOP_OUT), c4, 'dashed', 'Output P13', 'inner-up');
-        drawPath(getPoint('m1-p13', 'top', TOP_IN), getPoint('cloud-out', 'bottom', cloudBundle(4)), c4, 'dashed', 'OUT', 'up');
-        drawPath(getPoint('m1-p14', 'bottom', BOT_OUT), getPoint('mirror-dpi-1', 'top', {x:20, y:0}), c4, 'dashed', 'Mirror P14', 'down');
+        // Flow 4 (Purple): P15 -> P7 -> DPI-2 -> P13 (Mirror P14)
+        const f4 = COLORS.flow4;
+        drawPath(getPoint('cloud-in', 'bottom', C_OFF(4)), getPoint('m1-p15', 'top', P_IN), f4, 'solid', 'IN-4', 'external-down', 4);
+        drawPath(getPoint('m1-p15', 'top', P_OUT), getPoint('m1-p7', 'top', P_IN), f4, 'dashed', 'L4', 'logical-up', 4);
+        drawPath(getPoint('m1-p7', 'bottom', P_OUT), getPoint('dpi-2', 'top', S_OFF(2)), f4, 'dashed', 'UP-4', 'external-down', 4);
+        drawPath(getPoint('dpi-2', 'top', S_OFF(2.5)), getPoint('m1-p7', 'bottom', P_IN), f4, 'solid', 'DN-4', 'external-up', 4);
+        drawPath(getPoint('m1-p7', 'top', P_OUT), getPoint('m1-p13', 'top', P_OUT), f4, 'dashed', 'L4.1', 'logical-up', 4.5);
+        drawPath(getPoint('m1-p13', 'top', P_IN), getPoint('cloud-out', 'bottom', C_OFF(4)), f4, 'dashed', 'OUT-4', 'external-up', 4);
+        drawPath(getPoint('m1-p14', 'bottom', P_OUT), getPoint('mirror-dpi-1', 'top', S_OFF(4)), f4, 'dashed', 'M4', 'external-down', 4);
 
 
         // --- MODULE 2 ---
         
-        // Flow 5: Cybernet IN -> P9 -> P1 -> DPI-3 -> P1 -> P11 + Mirror P10 -> MIRROR DPI-3
-        const c5 = COLORS.flow5;
-        drawPath(getPoint('cloud-in', 'bottom', cloudBundle(5)), getPoint('m2-p9', 'top', TOP_IN), c5, 'solid', 'IN', 'down');
-        drawPath(getPoint('m2-p9', 'top', TOP_OUT), getPoint('m2-p1', 'top', TOP_IN), c5, 'dashed', 'Logical', 'inner-up');
-        drawPath(getPoint('m2-p1', 'bottom', BOT_OUT), getPoint('dpi-3', 'top', {x:-20, y:0}), c5, 'dashed', 'Uplink', 'down');
-        drawPath(getPoint('dpi-3', 'top', {x:-10, y:0}), getPoint('m2-p1', 'bottom', BOT_IN), c5, 'solid', 'Downlink', 'up');
-        drawPath(getPoint('m2-p1', 'bottom', BOT_OUT), getPoint('m2-p11', 'bottom', BOT_IN), c5, 'dashed', 'Output P11', 'inner-down');
-        drawPath(getPoint('m2-p11', 'top', TOP_OUT), getPoint('cloud-out', 'bottom', cloudBundle(5)), c5, 'dashed', 'OUT', 'up');
-        drawPath(getPoint('m2-p10', 'bottom', BOT_OUT), getPoint('mirror-dpi-3', 'top', {x:-20, y:0}), c5, 'dashed', 'Mirror P10', 'down');
+        // Flow 5 (Green): P9 -> P1 -> DPI-3 -> P11 (Mirror P10)
+        const f5 = COLORS.flow5;
+        drawPath(getPoint('cloud-in', 'bottom', C_OFF(5)), getPoint('m2-p9', 'top', P_IN), f5, 'solid', 'IN-5', 'external-down', 5);
+        drawPath(getPoint('m2-p9', 'top', P_OUT), getPoint('m2-p1', 'top', P_IN), f5, 'dashed', 'L5', 'logical-up', 5);
+        drawPath(getPoint('m2-p1', 'bottom', P_OUT), getPoint('dpi-3', 'top', S_OFF(1)), f5, 'dashed', 'UP-5', 'external-down', 5);
+        drawPath(getPoint('dpi-3', 'top', S_OFF(1.5)), getPoint('m2-p1', 'bottom', P_IN), f5, 'solid', 'DN-5', 'external-up', 5);
+        drawPath(getPoint('m2-p1', 'bottom', P_OUT), getPoint('m2-p11', 'bottom', P_IN), f5, 'dashed', 'L5.1', 'logical-down', 5);
+        drawPath(getPoint('m2-p11', 'top', P_OUT), getPoint('cloud-out', 'bottom', C_OFF(5)), f5, 'dashed', 'OUT-5', 'external-up', 5);
+        drawPath(getPoint('m2-p10', 'bottom', P_OUT), getPoint('mirror-dpi-3', 'top', S_OFF(1)), f5, 'dashed', 'M5', 'external-down', 5);
 
-        // Flow 6: Cybernet IN -> P11 -> P3 -> DPI-3 -> P3 -> P9 + Mirror P12 -> MIRROR DPI-3
-        const c6 = COLORS.flow6;
-        drawPath(getPoint('cloud-in', 'bottom', cloudBundle(6)), getPoint('m2-p11', 'top', TOP_IN), c6, 'solid', 'IN', 'down');
-        drawPath(getPoint('m2-p11', 'top', TOP_OUT), getPoint('m2-p3', 'top', TOP_IN), c6, 'dashed', 'Logical', 'inner-up');
-        drawPath(getPoint('m2-p3', 'bottom', BOT_OUT), getPoint('dpi-3', 'top', {x:10, y:0}), c6, 'dashed', 'Uplink', 'down');
-        drawPath(getPoint('dpi-3', 'top', {x:20, y:0}), getPoint('m2-p3', 'bottom', BOT_IN), c6, 'solid', 'Downlink', 'up');
-        drawPath(getPoint('m2-p3', 'top', TOP_OUT), getPoint('m2-p9', 'top', TOP_OUT), c6, 'dashed', 'Output P9', 'inner-up');
-        drawPath(getPoint('m2-p9', 'top', TOP_IN), getPoint('cloud-out', 'bottom', cloudBundle(6)), c6, 'dashed', 'OUT', 'up');
-        drawPath(getPoint('m2-p12', 'bottom', BOT_OUT), getPoint('mirror-dpi-3', 'top', {x:10, y:0}), c6, 'dashed', 'Mirror P12', 'down');
+        // Flow 6 (Red): P11 -> P3 -> DPI-3 -> P9 (Mirror P12)
+        const f6 = COLORS.flow6;
+        drawPath(getPoint('cloud-in', 'bottom', C_OFF(6)), getPoint('m2-p11', 'top', P_IN), f6, 'solid', 'IN-6', 'external-down', 6);
+        drawPath(getPoint('m2-p11', 'top', P_OUT), getPoint('m2-p3', 'top', P_IN), f6, 'dashed', 'L6', 'logical-up', 6);
+        drawPath(getPoint('m2-p3', 'bottom', P_OUT), getPoint('dpi-3', 'top', S_OFF(2)), f6, 'dashed', 'UP-6', 'external-down', 6);
+        drawPath(getPoint('dpi-3', 'top', S_OFF(2.5)), getPoint('m2-p3', 'bottom', P_IN), f6, 'solid', 'DN-6', 'external-up', 6);
+        drawPath(getPoint('m2-p3', 'top', P_OUT), getPoint('m2-p9', 'top', P_OUT), f6, 'dashed', 'L6.1', 'logical-up', 6.5);
+        drawPath(getPoint('m2-p9', 'top', P_IN), getPoint('cloud-out', 'bottom', C_OFF(6)), f6, 'dashed', 'OUT-6', 'external-up', 6);
+        drawPath(getPoint('m2-p12', 'bottom', P_OUT), getPoint('mirror-dpi-3', 'top', S_OFF(2)), f6, 'dashed', 'M6', 'external-down', 6);
 
-        // Flow 7: Cybernet IN -> P13 -> P5 -> DPI-4 -> P5 -> P15 + Mirror P14 -> MIRROR DPI-4
-        const c7 = COLORS.flow7;
-        drawPath(getPoint('cloud-in', 'bottom', cloudBundle(7)), getPoint('m2-p13', 'top', TOP_IN), c7, 'solid', 'IN', 'down');
-        drawPath(getPoint('m2-p13', 'top', TOP_OUT), getPoint('m2-p5', 'top', TOP_IN), c7, 'dashed', 'Logical', 'inner-up');
-        drawPath(getPoint('m2-p5', 'bottom', BOT_OUT), getPoint('dpi-4', 'top', {x:-20, y:0}), c7, 'dashed', 'Uplink', 'down');
-        drawPath(getPoint('dpi-4', 'top', {x:-10, y:0}), getPoint('m2-p5', 'bottom', BOT_IN), c7, 'solid', 'Downlink', 'up');
-        drawPath(getPoint('m2-p5', 'top', TOP_OUT), getPoint('m2-p15', 'top', TOP_OUT), c7, 'dashed', 'Output P15', 'inner-up');
-        drawPath(getPoint('m2-p15', 'top', TOP_IN), getPoint('cloud-out', 'bottom', cloudBundle(7)), c7, 'dashed', 'OUT', 'up');
-        drawPath(getPoint('m2-p14', 'bottom', BOT_OUT), getPoint('mirror-dpi-4', 'top', {x:-20, y:0}), c7, 'dashed', 'Mirror P14', 'down');
+        // Flow 7 (Gold): P13 -> P5 -> DPI-4 -> P15 (Mirror P14)
+        const f7 = COLORS.flow7;
+        drawPath(getPoint('cloud-in', 'bottom', C_OFF(7)), getPoint('m2-p13', 'top', P_IN), f7, 'solid', 'IN-7', 'external-down', 7);
+        drawPath(getPoint('m2-p13', 'top', P_OUT), getPoint('m2-p5', 'top', P_IN), f7, 'dashed', 'L7', 'logical-up', 7);
+        drawPath(getPoint('m2-p5', 'bottom', P_OUT), getPoint('dpi-4', 'top', S_OFF(1)), f7, 'dashed', 'UP-7', 'external-down', 7);
+        drawPath(getPoint('dpi-4', 'top', S_OFF(1.5)), getPoint('m2-p5', 'bottom', P_IN), f7, 'solid', 'DN-7', 'external-up', 7);
+        drawPath(getPoint('m2-p5', 'top', P_OUT), getPoint('m2-p15', 'top', P_OUT), f7, 'dashed', 'L7.1', 'logical-up', 7.5);
+        drawPath(getPoint('m2-p15', 'top', P_IN), getPoint('cloud-out', 'bottom', C_OFF(7)), f7, 'dashed', 'OUT-7', 'external-up', 7);
+        drawPath(getPoint('m2-p14', 'bottom', P_OUT), getPoint('mirror-dpi-4', 'top', S_OFF(1)), f7, 'dashed', 'M7', 'external-down', 7);
 
-        // Flow 8: Cybernet IN -> P15 -> P7 -> DPI-4 -> P7 -> P13 + Mirror P16 -> MIRROR DPI-4
-        const c8 = COLORS.flow8;
-        drawPath(getPoint('cloud-in', 'bottom', cloudBundle(8)), getPoint('m2-p15', 'top', TOP_IN), c8, 'solid', 'IN', 'down');
-        drawPath(getPoint('m2-p15', 'top', TOP_OUT), getPoint('m2-p7', 'top', TOP_IN), c8, 'dashed', 'Logical', 'inner-up');
-        drawPath(getPoint('m2-p7', 'bottom', BOT_OUT), getPoint('dpi-4', 'top', {x:10, y:0}), c8, 'dashed', 'Uplink', 'down');
-        drawPath(getPoint('dpi-4', 'top', {x:20, y:0}), getPoint('m2-p7', 'bottom', BOT_IN), c8, 'solid', 'Downlink', 'up');
-        drawPath(getPoint('m2-p7', 'top', TOP_OUT), getPoint('m2-p13', 'top', TOP_OUT), c8, 'dashed', 'Output P13', 'inner-up');
-        drawPath(getPoint('m2-p13', 'top', TOP_IN), getPoint('cloud-out', 'bottom', cloudBundle(8)), c8, 'dashed', 'OUT', 'up');
-        drawPath(getPoint('m2-p16', 'bottom', BOT_OUT), getPoint('mirror-dpi-4', 'top', {x:10, y:0}), c8, 'dashed', 'Mirror P16', 'down');
+        // Flow 8 (Cyan): P15 -> P7 -> DPI-4 -> P13 (Mirror P16)
+        const f8 = COLORS.flow8;
+        drawPath(getPoint('cloud-in', 'bottom', C_OFF(8)), getPoint('m2-p15', 'top', P_IN), f8, 'solid', 'IN-8', 'external-down', 8);
+        drawPath(getPoint('m2-p15', 'top', P_OUT), getPoint('m2-p7', 'top', P_IN), f8, 'dashed', 'L8', 'logical-up', 8);
+        drawPath(getPoint('m2-p7', 'bottom', P_OUT), getPoint('dpi-4', 'top', S_OFF(2)), f8, 'dashed', 'UP-8', 'external-down', 8);
+        drawPath(getPoint('dpi-4', 'top', S_OFF(2.5)), getPoint('m2-p7', 'bottom', P_IN), f8, 'solid', 'DN-8', 'external-up', 8);
+        drawPath(getPoint('m2-p7', 'top', P_OUT), getPoint('m2-p13', 'top', P_OUT), f8, 'dashed', 'L8.1', 'logical-up', 8.5);
+        drawPath(getPoint('m2-p13', 'top', P_IN), getPoint('cloud-out', 'bottom', C_OFF(8)), f8, 'dashed', 'OUT-8', 'external-up', 8);
+        drawPath(getPoint('m2-p16', 'bottom', P_OUT), getPoint('mirror-dpi-4', 'top', S_OFF(2)), f8, 'dashed', 'M8', 'external-down', 8);
     }
 
     function capture(format) {
