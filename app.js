@@ -79,10 +79,10 @@ document.addEventListener("DOMContentLoaded", () => {
             cp2y += 20 + (flowIndex * 4);
         } else if (type === 'external-down') {
             cp1y += Math.max(distY * 0.4, 50) + (flowIndex * 2);
-            cp2y -= Math.max(distY * 0.4, 50) + (flowIndex * 2);
+            cp2y -= Math.max(distY * 0.4, 60) + (flowIndex * 2);
         } else if (type === 'external-up') {
             cp1y -= Math.max(distY * 0.4, 50) + (flowIndex * 2);
-            cp2y += Math.max(distY * 0.4, 50) + (flowIndex * 2);
+            cp2y += Math.max(distY * 0.4, 60) + (flowIndex * 2);
         }
 
         path.setAttribute('d', `M ${p1.x} ${p1.y} C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${p2.x} ${p2.y}`);
@@ -142,7 +142,7 @@ document.addEventListener("DOMContentLoaded", () => {
         drawPath(getPoint('m1-p9', 'top', P_OUT), getPoint('cloud-out', 'bottom', C_OFF(2)), f2, 'dashed', 'OUT', 'external-up', 2);
         drawPath(getPoint('m1-p12', 'bottom', P_OUT), getPoint('mirror-dpi-1', 'top', S_OFF(2)), f2, 'dashed', 'Mirror', 'external-down', 2);
 
-        // Flow 3 (Orange)
+        // Flow 3 (Orange) - Mirror P16 -> Mirror DPI-2
         const f3 = COLORS.flow3;
         drawPath(getPoint('cloud-in', 'bottom', C_OFF(3)), getPoint('m1-p13', 'top', P_IN), f3, 'solid', 'IN', 'external-down', 3);
         drawPath(getPoint('m1-p13', 'top', P_OUT), getPoint('m1-p5', 'top', P_IN), f3, 'dashed', '', 'logical-up', 3);
@@ -150,9 +150,9 @@ document.addEventListener("DOMContentLoaded", () => {
         drawPath(getPoint('dpi-2', 'top', S_OFF(1.5)), getPoint('m1-p5', 'bottom', P_IN), f3, 'solid', 'Downlink', 'external-up', 3);
         drawPath(getPoint('m1-p5', 'bottom', P_OUT), getPoint('m1-p15', 'bottom', P_IN), f3, 'dashed', '', 'logical-down', 3);
         drawPath(getPoint('m1-p15', 'top', P_OUT), getPoint('cloud-out', 'bottom', C_OFF(3)), f3, 'dashed', 'OUT', 'external-up', 3);
-        drawPath(getPoint('m1-p16', 'bottom', P_OUT), getPoint('mirror-dpi-1', 'top', S_OFF(3)), f3, 'dashed', 'Mirror', 'external-down', 3);
+        drawPath(getPoint('m1-p16', 'bottom', P_OUT), getPoint('mirror-dpi-2', 'top', S_OFF(1)), f3, 'dashed', 'Mirror', 'external-down', 3);
 
-        // Flow 4 (Purple)
+        // Flow 4 (Purple) - Mirror P14 -> Mirror DPI-2
         const f4 = COLORS.flow4;
         drawPath(getPoint('cloud-in', 'bottom', C_OFF(4)), getPoint('m1-p15', 'top', P_IN), f4, 'solid', 'IN', 'external-down', 4);
         drawPath(getPoint('m1-p15', 'top', P_OUT), getPoint('m1-p7', 'top', P_IN), f4, 'dashed', '', 'logical-up', 4);
@@ -160,7 +160,7 @@ document.addEventListener("DOMContentLoaded", () => {
         drawPath(getPoint('dpi-2', 'top', S_OFF(2.5)), getPoint('m1-p7', 'bottom', P_IN), f4, 'solid', 'Downlink', 'external-up', 4);
         drawPath(getPoint('m1-p7', 'bottom', P_OUT), getPoint('m1-p13', 'bottom', P_IN), f4, 'dashed', '', 'logical-down', 4);
         drawPath(getPoint('m1-p13', 'top', P_IN), getPoint('cloud-out', 'bottom', C_OFF(4)), f4, 'dashed', 'OUT', 'external-up', 4);
-        drawPath(getPoint('m1-p14', 'bottom', P_OUT), getPoint('mirror-dpi-1', 'top', S_OFF(4)), f4, 'dashed', 'Mirror', 'external-down', 4);
+        drawPath(getPoint('m1-p14', 'bottom', P_OUT), getPoint('mirror-dpi-2', 'top', S_OFF(2)), f4, 'dashed', 'Mirror', 'external-down', 4);
 
 
         // --- MODULE 2 ---
