@@ -122,15 +122,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // --- MODULE 1 ---
         
-        // Flow 1: Cloud IN -> P9 -> P1 (dashed) -> DPI-1 -> P1 -> P11 (dashed) -> Cloud OUT
+        // Flow 1: Cybernet IN -> P9 (Solid) -> P1 (Dashed) -> DPI-1 (Dashed) -> P1 (Solid) -> P11 (Dashed) + Mirror P10 (Dashed) -> MIRROR DPI-1
         const c1 = COLORS.flow1;
         drawPath(getPoint('cloud-in', 'bottom', cloudBundle(1)), getPoint('m1-p9', 'top', TOP_IN), c1, 'solid', 'IN', 'down');
-        drawPath(getPoint('m1-p9', 'top', TOP_OUT), getPoint('m1-p1', 'top', TOP_IN), c1, 'dashed', 'P9 → P1', 'inner-up');
-        drawPath(getPoint('m1-p1', 'bottom', BOT_OUT), getPoint('dpi-1', 'top', {x:-20, y:0}), c1, 'dashed', 'To DPI', 'down');
-        drawPath(getPoint('dpi-1', 'top', {x:-10, y:0}), getPoint('m1-p1', 'bottom', BOT_IN), c1, 'solid', '', 'up');
-        drawPath(getPoint('m1-p1', 'bottom', BOT_OUT), getPoint('m1-p11', 'top', TOP_IN), c1, 'dashed', 'P1 → P11', 'down');
+        drawPath(getPoint('m1-p9', 'top', TOP_OUT), getPoint('m1-p1', 'top', TOP_IN), c1, 'dashed', 'Logical', 'inner-up');
+        drawPath(getPoint('m1-p1', 'bottom', BOT_OUT), getPoint('dpi-1', 'top', {x:-20, y:0}), c1, 'dashed', 'Uplink', 'down');
+        drawPath(getPoint('dpi-1', 'top', {x:-10, y:0}), getPoint('m1-p1', 'bottom', BOT_IN), c1, 'solid', 'Downlink', 'up');
+        drawPath(getPoint('m1-p1', 'bottom', BOT_OUT), getPoint('m1-p11', 'top', TOP_IN), c1, 'dashed', 'Output P11', 'down');
         drawPath(getPoint('m1-p11', 'top', TOP_OUT), getPoint('cloud-out', 'bottom', cloudBundle(1)), c1, 'dashed', 'OUT', 'up');
-        drawPath(getPoint('m1-p12', 'bottom', BOT_OUT), getPoint('mirror-dpi-1', 'top', {x:-20, y:0}), c1, 'dashed', 'Mirror', 'down');
+        // Mirror P10
+        drawPath(getPoint('m1-p10', 'bottom', BOT_OUT), getPoint('mirror-dpi-1', 'top', {x:-20, y:0}), c1, 'dashed', 'Mirror P10', 'down');
 
         // Flow 2: Cloud IN -> P11 -> P3 -> P9 -> Cloud OUT
         const c2 = COLORS.flow2;
