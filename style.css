@@ -25,7 +25,7 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    z-index: 5;
+    z-index: 1; /* Lower than components */
     pointer-events: none;
 }
 
@@ -56,7 +56,7 @@ body {
     display: flex;
     justify-content: space-around;
     position: relative;
-    z-index: 2;
+    z-index: 10; /* Above connections */
     margin-bottom: 120px;
     padding: 0 50px;
 }
@@ -149,12 +149,13 @@ body {
     position: relative;
     font-weight: 600;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    z-index: 10; /* Above connections */
 }
 
 /* Servers Layer */
 .servers-layer {
     position: relative;
-    z-index: 2;
+    z-index: 10; /* Above connections */
     margin: 0 20px 80px;
 }
 
