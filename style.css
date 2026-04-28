@@ -145,7 +145,7 @@ body {
     font-size: 11px;
     text-align: center;
     padding: 8px 0;
-    border-radius: 4px;
+    border-radius: 0;
     position: relative;
     font-weight: 600;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
@@ -184,6 +184,29 @@ body {
     line-height: 1.4;
     color: #1a1a2e;
     box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
+.server-icon-mini {
+    width: 24px;
+    height: 14px;
+    background: #cbd5e1;
+    border: 2px solid #64748b;
+    border-radius: 2px;
+    position: relative;
+}
+
+.server-icon-mini::before {
+    content: '';
+    position: absolute;
+    top: 3px;
+    left: 4px;
+    right: 4px;
+    height: 2px;
+    background: #475569;
 }
 
 .server.mirror {
