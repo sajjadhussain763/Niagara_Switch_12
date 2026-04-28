@@ -1,5 +1,5 @@
-document.addEventListener('DOMContentLoaded', () => {
-    const svg = document.getElementById('connections-svg');
+document.addEventListener("DOMContentLoaded", () => {
+    const svg = document.getElementById('connections');
     const container = document.getElementById('diagram-container');
 
     const COLORS = {
@@ -8,75 +8,76 @@ document.addEventListener('DOMContentLoaded', () => {
         mirror: '#ea580c'
     };
 
-    function resize() {
-        const rect = container.getBoundingClientRect();
-        svg.setAttribute('width', rect.width);
-        svg.setAttribute('height', rect.height);
-        svg.setAttribute('viewBox', `0 0 ${rect.width} ${rect.height}`);
+    function resizeSVG() {
+        svg.setAttribute('width',   container.offsetWidth);
+        svg.setAttribute('height',  container.offsetHeight);
+        svg.setAttribute('viewBox', `0 0 ${container.offsetWidth} ${container.offsetHeight}`);
     }
 
-    window.addEventListener('resize', () => { resize(); drawFlows(); });
-    resize();
+    resizeSVG();
+    window.addEventListener('resize', () => { resizeSVG(); drawAllFlows(); });
 
-    function getPos(id, side = 'center', offset = { x: 0, y: 0 }) {
+    function getPoint(id, side = 'center', offset = { x: 0, y: 0 }) {
         const el = document.getElementById(id);
         if (!el) return { x: 0, y: 0 };
-        const rect = el.getBoundingClientRect();
-        const crect = container.getBoundingClientRect();
 
-        let x = rect.left - crect.left;
-        let y = rect.top - crect.top;
+        const r  = el.getBoundingClientRect();
+        const cr = container.getBoundingClientRect();
+
+        let x = r.left - cr.left;
+        let y = r.top  - cr.top;
 
         if (side.includes('top')) y += 0;
-        else if (side.includes('bottom')) y += rect.height;
-        else y += rect.height / 2;
+        else if (side.includes('bottom')) y += r.height;
+        else y += r.height / 2;
 
         if (side.includes('left')) x += 0;
-        else if (side.includes('right')) x += rect.width;
-        else x += rect.width / 2;
+        else if (side.includes('right')) x += r.width;
+        else x += r.width / 2;
 
         return { x: x + offset.x, y: y + offset.y };
     }
 
-    function createMarker(id, color) {
-        if (document.getElementById(id)) return;
-        const defs = svg.querySelector('defs') || svg.appendChild(document.createElementNS('http://www.w3.org/2000/svg', 'defs'));
-        const marker = document.createElementNS('http://www.w3.org/2000/svg', 'marker');
-        marker.setAttribute('id', id);
-        marker.setAttribute('viewBox', '0 0 10 10');
-        marker.setAttribute('refX', '9');
-        marker.setAttribute('refY', '5');
-        marker.setAttribute('markerWidth', '6');
-        marker.setAttribute('markerHeight', '6');
-        marker.setAttribute('orient', 'auto-start-reverse');
-        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-        path.setAttribute('d', 'M 0 0 L 10 5 L 0 10 z');
-        path.setAttribute('fill', color);
-        marker.appendChild(path);
-        defs.appendChild(marker);
-    }
-
-    function drawLine(p1, p2, color, style = 'solid', label = '') {
+    function drawPath(p1, p2, color, style = 'solid', label = '', curveDir = 'down') {
         const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
         const markerId = `arrow-${color.replace('#', '')}`;
-        createMarker(markerId, color);
+        
+        // Ensure marker exists
+        if (!document.getElementById(markerId)) {
+            const defs = svg.querySelector('defs') || svg.appendChild(document.createElementNS('http://www.w3.org/2000/svg', 'defs'));
+            const marker = document.createElementNS('http://www.w3.org/2000/svg', 'marker');
+            marker.setAttribute('id', markerId);
+            marker.setAttribute('viewBox', '0 0 10 10');
+            marker.setAttribute('refX', '9');
+            marker.setAttribute('refY', '5');
+            marker.setAttribute('markerWidth', '5');
+            marker.setAttribute('markerHeight', '5');
+            marker.setAttribute('orient', 'auto-start-reverse');
+            const mpath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            mpath.setAttribute('d', 'M 0 0 L 10 5 L 0 10 z');
+            mpath.setAttribute('fill', color);
+            marker.appendChild(mpath);
+            defs.appendChild(marker);
+        }
 
-        // Calculate control points for a nice curve
+        // Calculate control points
         const dx = Math.abs(p2.x - p1.x);
         const dy = Math.abs(p2.y - p1.y);
-        const vertical = dy > dx;
-        
         let cp1x = p1.x, cp1y = p1.y;
         let cp2x = p2.x, cp2y = p2.y;
 
-        if (vertical) {
-            const midY = (p1.y + p2.y) / 2;
-            cp1y = midY;
-            cp2y = midY;
-        } else {
-            const midX = (p1.x + p2.x) / 2;
-            cp1x = midX;
-            cp2x = midX;
+        if (curveDir === 'down') {
+            cp1y += Math.max(dy * 0.5, 50);
+            cp2y -= Math.max(dy * 0.5, 50);
+        } else if (curveDir === 'up') {
+            cp1y -= Math.max(dy * 0.5, 50);
+            cp2y += Math.max(dy * 0.5, 50);
+        } else if (curveDir === 'inner-up') {
+            cp1y -= 60;
+            cp2y -= 60;
+        } else if (curveDir === 'inner-down') {
+            cp1y += 60;
+            cp2y += 60;
         }
 
         path.setAttribute('d', `M ${p1.x} ${p1.y} C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${p2.x} ${p2.y}`);
@@ -93,118 +94,115 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (label) {
             const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-            const midX = (p1.x + p2.x) / 2;
-            const midY = (p1.y + p2.y) / 2;
-            text.setAttribute('x', midX);
-            text.setAttribute('y', midY - 5);
+            // Position label near the start or middle
+            text.setAttribute('x', p1.x + (p2.x - p1.x) * 0.3);
+            text.setAttribute('y', p1.y + (p2.y - p1.y) * 0.3 - 5);
             text.setAttribute('fill', color);
             text.setAttribute('font-size', '10px');
-            text.setAttribute('font-weight', '700');
+            text.setAttribute('font-weight', 'bold');
             text.setAttribute('text-anchor', 'middle');
             text.textContent = label;
             svg.appendChild(text);
         }
     }
 
-    function drawFlows() {
-        svg.innerHTML = '';
+    function drawAllFlows() {
+        svg.innerHTML = '<defs></defs>';
         
-        // Offset definitions for IN/OUT on ports
-        const IN = { x: -15, y: 0 };
-        const OUT = { x: 15, y: 0 };
-        const TOP_IN = { x: 0, y: -5 };
-        const BOT_OUT = { x: 0, y: 5 };
+        // Define port offsets for IN/OUT clarity
+        const TOP_IN = { x: -5, y: -2 };
+        const TOP_OUT = { x: 5, y: -2 };
+        const BOT_IN = { x: -5, y: 2 };
+        const BOT_OUT = { x: 5, y: 2 };
 
-        // --- MODULE 1 FLOWS (BLUE) ---
-        
+        // --- MODULE 1 (BLUE) ---
         // Flow 1: Cybernet -> P9 -> P1 -> DPI -> P1 -> P11 (dashed)
-        const f1p1 = getPos('cybernet', 'bottom');
-        const f1p2 = getPos('m1-p9', 'top', TOP_IN);
-        drawLine(f1p1, f1p2, COLORS.m1, 'solid', 'Cybernet IN → P9');
-
-        drawLine(getPos('m1-p9', 'top', {x:5, y:-5}), getPos('m1-p1', 'top', {x:-5, y:-5}), COLORS.m1, 'solid', 'P9 → P1');
-        drawLine(getPos('m1-p1', 'bottom', BOT_OUT), getPos('dpi-server', 'top', {x:-40, y:0}), COLORS.m1, 'solid', 'P1 → DPI Server');
-        drawLine(getPos('dpi-server', 'top', {x:-30, y:0}), getPos('m1-p1', 'bottom', {x:5, y:5}), COLORS.m1, 'solid');
-        drawLine(getPos('m1-p1', 'bottom', {x:10, y:5}), getPos('m1-p11', 'top', TOP_IN), COLORS.m1, 'dashed', 'P1 → P11');
-        
-        // Flow 1 Mirror: P10 -> Mirror DPI
-        drawLine(getPos('m1-p10', 'bottom', BOT_OUT), getPos('mirror-dpi', 'top', {x:-20, y:0}), COLORS.mirror, 'solid', 'Mirror Copy: P10 → Mirror DPI on LEA');
+        drawPath(getPoint('cybernet', 'bottom'), getPoint('m1-p9', 'top', TOP_IN), COLORS.m1, 'solid', 'Cybernet IN → P9', 'down');
+        drawPath(getPoint('m1-p9', 'top', TOP_OUT), getPoint('m1-p1', 'top', TOP_IN), COLORS.m1, 'solid', 'P9 → P1', 'inner-up');
+        drawPath(getPoint('m1-p1', 'bottom', BOT_OUT), getPoint('dpi-server', 'top', {x:-30, y:0}), COLORS.m1, 'solid', 'P1 → DPI Server', 'down');
+        drawPath(getPoint('dpi-server', 'top', {x:-20, y:0}), getPoint('m1-p1', 'bottom', BOT_IN), COLORS.m1, 'solid', '', 'up');
+        drawPath(getPoint('m1-p1', 'bottom', BOT_OUT), getPoint('m1-p11', 'top', TOP_IN), COLORS.m1, 'dashed', 'P1 → P11', 'down');
+        // Mirror P10
+        drawPath(getPoint('m1-p10', 'bottom', BOT_OUT), getPoint('mirror-dpi', 'top', {x:-30, y:0}), COLORS.mirror, 'solid', 'Mirror P10', 'down');
 
         // Flow 2: P11 -> P3 -> P9
-        drawLine(getPos('m1-p11', 'top', {x:10, y:-5}), getPos('m1-p3', 'top', TOP_IN), COLORS.m1, 'solid', 'P11 → P3');
-        drawLine(getPos('m1-p3', 'bottom', BOT_OUT), getPos('m1-p9', 'bottom', {x:10, y:5}), COLORS.m1, 'solid', 'P3 → P9');
-        // Flow 2 Clone: P12
-        drawLine(getPos('m1-p12', 'bottom', BOT_OUT), getPos('lea-server', 'top', {x:-60, y:0}), COLORS.mirror, 'solid', 'Clone on P12 → Saved');
+        drawPath(getPoint('m1-p11', 'top', TOP_OUT), getPoint('m1-p3', 'top', TOP_IN), COLORS.m1, 'solid', 'P11 → P3', 'inner-up');
+        drawPath(getPoint('m1-p3', 'bottom', BOT_OUT), getPoint('m1-p9', 'bottom', BOT_IN), COLORS.m1, 'solid', 'P3 → P9', 'inner-down');
+        // Clone P12
+        drawPath(getPoint('m1-p12', 'bottom', BOT_OUT), getPoint('lea-server', 'top', {x:-30, y:0}), COLORS.mirror, 'solid', 'Clone P12', 'down');
 
         // Flow 3: P13 -> P5 -> P15
-        drawLine(getPos('m1-p13', 'top', TOP_IN), getPos('m1-p5', 'top', TOP_IN), COLORS.m1, 'solid', 'P13 → P5');
-        drawLine(getPos('m1-p5', 'bottom', BOT_OUT), getPos('m1-p15', 'bottom', {x:10, y:5}), COLORS.m1, 'solid', 'P5 → P15');
-        // Flow 3 Clone: P16
-        drawLine(getPos('m1-p16', 'bottom', BOT_OUT), getPos('lea-server', 'top', {x:-40, y:0}), COLORS.mirror, 'solid', 'Clone on P16 → Saved');
+        drawPath(getPoint('m1-p13', 'top', TOP_IN), getPoint('m1-p5', 'top', TOP_IN), COLORS.m1, 'solid', 'P13 → P5', 'inner-up');
+        drawPath(getPoint('m1-p5', 'bottom', BOT_OUT), getPoint('m1-p15', 'bottom', BOT_IN), COLORS.m1, 'solid', 'P5 → P15', 'inner-down');
+        // Clone P16
+        drawPath(getPoint('m1-p16', 'bottom', BOT_OUT), getPoint('lea-server', 'top', {x:-10, y:0}), COLORS.mirror, 'solid', 'Clone P16', 'down');
 
         // Flow 4: P15 -> P7 -> DPA -> P7 -> P13
-        drawLine(getPos('m1-p15', 'top', TOP_IN), getPos('m1-p7', 'top', TOP_IN), COLORS.m1, 'solid', 'P15 → P7');
-        drawLine(getPos('m1-p7', 'bottom', BOT_OUT), getPos('dpa-server', 'top', {x:-40, y:0}), COLORS.m1, 'solid', 'P7 → DPA Server');
-        drawLine(getPos('dpa-server', 'top', {x:-30, y:0}), getPos('m1-p7', 'bottom', {x:5, y:5}), COLORS.m1, 'solid');
-        drawLine(getPos('m1-p7', 'top', {x:10, y:-5}), getPos('m1-p13', 'top', {x:10, y:-5}), COLORS.m1, 'solid', 'P7 → P13');
-        // Flow 4 Mirror: P14
-        drawLine(getPos('m1-p14', 'bottom', BOT_OUT), getPos('lea-server', 'top', {x:-20, y:0}), COLORS.mirror, 'solid', 'Mirror on P14 → LEA Server');
+        drawPath(getPoint('m1-p15', 'top', TOP_OUT), getPoint('m1-p7', 'top', TOP_IN), COLORS.m1, 'solid', 'P15 → P7', 'inner-up');
+        drawPath(getPoint('m1-p7', 'bottom', BOT_OUT), getPoint('dpa-server', 'top', {x:-20, y:0}), COLORS.m1, 'solid', 'P7 → DPA', 'down');
+        drawPath(getPoint('dpa-server', 'top', {x:-10, y:0}), getPoint('m1-p7', 'bottom', BOT_IN), COLORS.m1, 'solid', '', 'up');
+        drawPath(getPoint('m1-p7', 'top', TOP_OUT), getPoint('m1-p13', 'top', TOP_OUT), COLORS.m1, 'solid', 'P7 → P13', 'inner-up');
+        // Mirror P14
+        drawPath(getPoint('m1-p14', 'bottom', BOT_OUT), getPoint('lea-server', 'top', {x:10, y:0}), COLORS.mirror, 'solid', 'Mirror P14', 'down');
 
 
-        // --- MODULE 2 FLOWS (GREEN) ---
-
+        // --- MODULE 2 (GREEN) ---
         // Flow 5: P9 -> P1 -> P11
-        drawLine(getPos('m2-p9', 'top', TOP_IN), getPos('m2-p1', 'top', TOP_IN), COLORS.m2, 'solid', 'P9 → P1');
-        drawLine(getPos('m2-p1', 'bottom', BOT_OUT), getPos('m2-p11', 'bottom', {x:10, y:5}), COLORS.m2, 'solid', 'P1 → P11');
-        // Flow 5 Copy: P10
-        drawLine(getPos('m2-p10', 'bottom', BOT_OUT), getPos('lea-server', 'top', {x:20, y:0}), COLORS.mirror, 'solid', 'Copy on P10 → LEA');
+        drawPath(getPoint('m2-p9', 'top', TOP_IN), getPoint('m2-p1', 'top', TOP_IN), COLORS.m2, 'solid', 'P9 → P1', 'inner-up');
+        drawPath(getPoint('m2-p1', 'bottom', BOT_OUT), getPoint('m2-p11', 'bottom', BOT_IN), COLORS.m2, 'solid', 'P1 → P11', 'inner-down');
+        // Copy P10
+        drawPath(getPoint('m2-p10', 'bottom', BOT_OUT), getPoint('lea-server', 'top', {x:30, y:0}), COLORS.mirror, 'solid', 'Copy P10', 'down');
 
         // Flow 6: Cybernet -> P11 -> P3 -> DPI -> P3 -> P9
-        drawLine(getPos('cybernet', 'bottom', {x:20, y:0}), getPos('m2-p11', 'top', TOP_IN), COLORS.m2, 'solid', 'Cybernet → P11');
-        drawLine(getPos('m2-p11', 'top', {x:10, y:-5}), getPos('m2-p3', 'top', TOP_IN), COLORS.m2, 'solid', 'P11 → P3');
-        drawLine(getPos('m2-p3', 'bottom', BOT_OUT), getPos('dpi-server', 'top', {x:20, y:0}), COLORS.m2, 'solid', 'P3 → DPI Server');
-        drawLine(getPos('dpi-server', 'top', {x:30, y:0}), getPos('m2-p3', 'bottom', {x:5, y:5}), COLORS.m2, 'solid');
-        drawLine(getPos('m2-p3', 'top', {x:10, y:-5}), getPos('m2-p9', 'top', {x:10, y:-5}), COLORS.m2, 'solid', 'P3 → P9');
-        // Flow 6 Clone: P12
-        drawLine(getPos('m2-p12', 'bottom', BOT_OUT), getPos('lea-server', 'top', {x:40, y:0}), COLORS.mirror, 'solid', 'Clone on P12 → LEA');
+        drawPath(getPoint('cybernet', 'bottom', {x:50, y:0}), getPoint('m2-p11', 'top', TOP_IN), COLORS.m2, 'solid', 'Cybernet → P11', 'down');
+        drawPath(getPoint('m2-p11', 'top', TOP_OUT), getPoint('m2-p3', 'top', TOP_IN), COLORS.m2, 'solid', 'P11 → P3', 'inner-up');
+        drawPath(getPoint('m2-p3', 'bottom', BOT_OUT), getPoint('dpi-server', 'top', {x:20, y:0}), COLORS.m2, 'solid', 'P3 → DPI', 'down');
+        drawPath(getPoint('dpi-server', 'top', {x:30, y:0}), getPoint('m2-p3', 'bottom', BOT_IN), COLORS.m2, 'solid', '', 'up');
+        drawPath(getPoint('m2-p3', 'top', TOP_OUT), getPoint('m2-p9', 'top', TOP_OUT), COLORS.m2, 'solid', 'P3 → P9', 'inner-up');
+        // Clone P12
+        drawPath(getPoint('m2-p12', 'bottom', BOT_OUT), getPoint('lea-server', 'top', {x:50, y:0}), COLORS.mirror, 'solid', 'Clone P12', 'down');
 
         // Flow 7: IT Cybernet -> P13 -> P5 -> DPA -> P5 -> P15
-        drawLine(getPos('it-cybernet', 'bottom'), getPos('m2-p13', 'top', TOP_IN), COLORS.m2, 'solid', 'IT Cybernet → P13');
-        drawLine(getPos('m2-p13', 'top', {x:10, y:-5}), getPos('m2-p5', 'top', TOP_IN), COLORS.m2, 'solid', 'P13 → P5');
-        drawLine(getPos('m2-p5', 'bottom', BOT_OUT), getPos('dpa-server', 'top', {x:20, y:0}), COLORS.m2, 'solid', 'P5 → DPA Server');
-        drawLine(getPos('dpa-server', 'top', {x:30, y:0}), getPos('m2-p5', 'bottom', {x:5, y:5}), COLORS.m2, 'solid');
-        drawLine(getPos('m2-p5', 'top', {x:10, y:-5}), getPos('m2-p15', 'top', {x:10, y:-5}), COLORS.m2, 'solid', 'P5 → P15');
-        // Flow 7 Clone: P14
-        drawLine(getPos('m2-p14', 'bottom', BOT_OUT), getPos('mirror-dpi', 'top', {x:20, y:0}), COLORS.mirror, 'solid', 'Clone on P14 → Mirror Server LEA');
+        drawPath(getPoint('it-cybernet', 'bottom'), getPoint('m2-p13', 'top', TOP_IN), COLORS.m2, 'solid', 'IT Cybernet → P13', 'down');
+        drawPath(getPoint('m2-p13', 'top', TOP_OUT), getPoint('m2-p5', 'top', TOP_IN), COLORS.m2, 'solid', 'P13 → P5', 'inner-up');
+        drawPath(getPoint('m2-p5', 'bottom', BOT_OUT), getPoint('dpa-server', 'top', {x:20, y:0}), COLORS.m2, 'solid', 'P5 → DPA', 'down');
+        drawPath(getPoint('dpa-server', 'top', {x:30, y:0}), getPoint('m2-p5', 'bottom', BOT_IN), COLORS.m2, 'solid', '', 'up');
+        drawPath(getPoint('m2-p5', 'top', TOP_OUT), getPoint('m2-p15', 'top', TOP_OUT), COLORS.m2, 'solid', 'P5 → P15', 'inner-up');
+        // Clone P14
+        drawPath(getPoint('m2-p14', 'bottom', BOT_OUT), getPoint('mirror-dpi', 'top', {x:20, y:0}), COLORS.mirror, 'solid', 'Clone P14', 'down');
 
         // Flow 8: P15 -> P7 -> DPA -> P7 -> P13
-        drawLine(getPos('m2-p15', 'top', TOP_IN), getPos('m2-p7', 'top', TOP_IN), COLORS.m2, 'solid', 'P15 → P7');
-        drawLine(getPos('m2-p7', 'bottom', BOT_OUT), getPos('dpa-server', 'top', {x:40, y:0}), COLORS.m2, 'solid', 'P7 → DPA Server');
-        drawLine(getPos('dpa-server', 'top', {x:50, y:0}), getPos('m2-p7', 'bottom', {x:5, y:5}), COLORS.m2, 'solid');
-        drawLine(getPos('m2-p7', 'top', {x:10, y:-5}), getPos('m2-p13', 'top', {x:15, y:-5}), COLORS.m2, 'solid', 'P7 → P13');
-        // Flow 8 Mirror: P16
-        drawLine(getPos('m2-p16', 'bottom', BOT_OUT), getPos('lea-server', 'top', {x:60, y:0}), COLORS.mirror, 'solid', 'Mirror on P16 → LEA');
+        drawPath(getPoint('m2-p15', 'top', TOP_IN), getPoint('m2-p7', 'top', TOP_IN), COLORS.m2, 'solid', 'P15 → P7', 'inner-up');
+        drawPath(getPoint('m2-p7', 'bottom', BOT_OUT), getPoint('dpa-server', 'top', {x:40, y:0}), COLORS.m2, 'solid', 'P7 → DPA', 'down');
+        drawPath(getPoint('dpa-server', 'top', {x:50, y:0}), getPoint('m2-p7', 'bottom', BOT_IN), COLORS.m2, 'solid', '', 'up');
+        drawPath(getPoint('m2-p7', 'top', TOP_OUT), getPoint('m2-p13', 'top', TOP_OUT), COLORS.m2, 'solid', 'P7 → P13', 'inner-up');
+        // Mirror P16
+        drawPath(getPoint('m2-p16', 'bottom', BOT_OUT), getPoint('lea-server', 'top', {x:70, y:0}), COLORS.mirror, 'solid', 'Mirror P16', 'down');
     }
 
-    // Download Feature
-    document.getElementById('download-png').addEventListener('click', () => {
-        html2canvas(container).then(canvas => {
-            const link = document.createElement('a');
-            link.download = 'Niagara_NPB_Switch_12_Diagram.png';
-            link.href = canvas.toDataURL();
-            link.click();
+    // Capture functionality
+    function capture(format) {
+        const btns = document.querySelector('.btn-group');
+        btns.style.display = 'none';
+        html2canvas(container, { scale: 2, backgroundColor: '#ffffff' }).then(canvas => {
+            if (format === 'pdf') {
+                const { jsPDF } = window.jspdf;
+                const pdf = new jsPDF('l', 'pt', [canvas.width, canvas.height]);
+                pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, canvas.width, canvas.height);
+                pdf.save('Niagara_Switch_12_Diagram.pdf');
+            } else {
+                const link = document.createElement('a');
+                link.download = `Niagara_Switch_12_Diagram.${format}`;
+                link.href = canvas.toDataURL(`image/${format}`);
+                link.click();
+            }
+            btns.style.display = 'flex';
         });
-    });
+    }
 
-    document.getElementById('download-pdf').addEventListener('click', () => {
-        html2canvas(container).then(canvas => {
-            const { jsPDF } = window.jspdf;
-            const pdf = new jsPDF('l', 'mm', 'a4');
-            const imgData = canvas.toDataURL('image/png');
-            pdf.addImage(imgData, 'PNG', 10, 10, 280, 190);
-            pdf.save('Niagara_NPB_Switch_12_Diagram.pdf');
-        });
-    });
+    document.getElementById('download-png').onclick = () => capture('png');
+    document.getElementById('download-jpg').onclick = () => capture('jpeg');
+    document.getElementById('download-pdf').onclick = () => capture('pdf');
 
-    setTimeout(drawFlows, 500);
+    setTimeout(drawAllFlows, 500);
 });
